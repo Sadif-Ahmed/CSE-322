@@ -90,6 +90,8 @@ public class Worker extends Thread {
                         Server.filereqcount++;
                         System.out.println(Server.filerequests);
                         System.out.println(Server.filereqsender);
+                        Server.write_hashmap(Server.filerequests,Server.reqlistpath);
+                        Server.write_hashmap(Server.filereqsender,Server.reqsenderpath);
                         out.writeObject(message);
 
                     }

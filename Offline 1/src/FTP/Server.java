@@ -35,6 +35,9 @@ public class Server {
 
     public static String filelistpath = "E:\\CSE-322\\Offline 1\\src\\file_list.txt";
     public static String uploader_listpath= "E:\\CSE-322\\Offline 1\\src\\uploader_list.txt";
+
+    public static String reqlistpath = "E:\\CSE-322\\Offline 1\\src\\req_list.txt";
+    public static String reqsenderpath = "E:\\CSE-322\\Offline 1\\src\\req_sender.txt";
    public static void write_user_list(HashSet<String> temp,String filepath)
     {
         try {
@@ -109,6 +112,8 @@ public class Server {
         Server.read_user_list(users, userfilepath);
         Server.read_hashmap(Server.fileuploadinfo,filelistpath);
         Server.read_hashmap(Server.fileuploaderinfo,uploader_listpath);
+        Server.read_hashmap(Server.filerequests,Server.reqlistpath);
+        Server.read_hashmap(Server.filereqsender,Server.reqsenderpath);
 
         while(true) {
 
