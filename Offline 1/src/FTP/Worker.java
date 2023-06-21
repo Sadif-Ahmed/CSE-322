@@ -84,12 +84,11 @@ public class Worker extends Thread {
                         String filedesc=(String) in.readObject();
                         String message = username + " has requested the file with description: " + filedesc;
                         System.out.println(message);
-                        filedesc = username + " " + filedesc;
                         Server.filereqsender.put(Server.filereqcount,username);
                         Server.filerequests.put(Server.filereqcount,filedesc);
                         Server.filereqcount++;
-                        System.out.println(Server.filerequests);
-                        System.out.println(Server.filereqsender);
+                        //System.out.println(Server.filerequests);
+                        //System.out.println(Server.filereqsender);
                         Server.write_hashmap(Server.filerequests,Server.reqlistpath);
                         Server.write_hashmap(Server.filereqsender,Server.reqsenderpath);
                         out.writeObject(message);
@@ -97,12 +96,15 @@ public class Worker extends Thread {
                     }
                     else if (receivedinput.equalsIgnoreCase("view msgs"))
                     {
-                        System.out.println(Server.filerequests);
+                        //System.out.println(Server.filerequests);
+                        out.writeObject(new HashMap<>(Server.filereqsender));
                         out.writeObject(new HashMap<>(Server.filerequests));
+
                     }
                     else if (receivedinput.equalsIgnoreCase("view allmsgs"))
                     {
-                        System.out.println(Server.filerequests);
+                        //System.out.println(Server.filerequests);
+                        out.writeObject(new HashMap<>(Server.filereqsender));
                         out.writeObject(new HashMap<>(Server.filerequests));
                     }
                     else if(receivedinput.equalsIgnoreCase("get file"))
@@ -214,6 +216,14 @@ public class Worker extends Thread {
                         System.out.println(message);
                         Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
                         Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
+                        if(fsize==downfile.length())
+                        {
+                            out.writeObject("File Successfully Uploaded.");
+                        }
+                        else
+                        {
+                            out.writeObject("Something Went Wrong.");
+                        }
                     }
 
 

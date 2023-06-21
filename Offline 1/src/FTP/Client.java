@@ -140,16 +140,16 @@ public class Client {
                 else if(input.equalsIgnoreCase("view msgs"))
                 {
                     out.writeObject(input);
+                    HashMap<Integer , String> filereqsender = (HashMap<Integer, String>) in.readObject();
                     HashMap<Integer , String> filerequests = (HashMap<Integer, String>) in.readObject();
-                  System.out.println(filerequests);
-                    System.out.println(seenreqids);
+                    //System.out.println(filerequests);
+                    //System.out.println(seenreqids);
                     System.out.println("Unseen Messages: ");
                     for (int i: filerequests.keySet())
                     {
                         if (!seenreqids.contains(i))
                         {
-                            String [] str = filerequests.get(i).split(" ",2);
-                            System.out.println("Request id: "+ (i) +" Sender: "+str[0] + " File Description: " +str[1]);
+                            System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
                             seenreqids.add(i);
                         }
                     }
@@ -158,15 +158,14 @@ public class Client {
                 else if(input.equalsIgnoreCase("view allmsgs"))
                 {
                     out.writeObject(input);
+                    HashMap<Integer , String> filereqsender = (HashMap<Integer, String>) in.readObject();
                     HashMap<Integer , String> filerequests = (HashMap<Integer, String>) in.readObject();
-                    System.out.println(filerequests);
-                    System.out.println(seenreqids);
+                    //System.out.println(filerequests);
+                    //System.out.println(seenreqids);
                     System.out.println("All Messages: ");
                     for (int i: filerequests.keySet())
                     {
-
-                            String [] str = filerequests.get(i).split(" ",2);
-                            System.out.println("Request id: "+ (i) +" Sender: "+str[0] + " File Description: " +str[1]);
+                            System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
                             seenreqids.add(i);
 
                     }
@@ -274,6 +273,8 @@ public class Client {
                             out.writeObject(holder);
                     }
                         out.writeObject("File Upload Complete");
+                        String message= (String) in.readObject();
+                        System.out.println(message);
                     }
                 }
                 else if(input.equalsIgnoreCase("ls localfiles"))

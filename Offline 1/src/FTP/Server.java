@@ -89,6 +89,7 @@ public class Server {
     }
     public static void read_hashmap(HashMap<Integer,String> temp,String filepath)
     {
+        temp.clear();
         try {
             File myObj = new File(filepath);
             Scanner myReader = new Scanner(myObj);
@@ -104,6 +105,7 @@ public class Server {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+        System.out.println(temp);
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -114,6 +116,9 @@ public class Server {
         Server.read_hashmap(Server.fileuploaderinfo,uploader_listpath);
         Server.read_hashmap(Server.filerequests,Server.reqlistpath);
         Server.read_hashmap(Server.filereqsender,Server.reqsenderpath);
+        filereqcount = filerequests.size();
+        fileuploadcount = fileuploadinfo.size();
+
 
         while(true) {
 
