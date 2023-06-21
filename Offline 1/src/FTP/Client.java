@@ -1,4 +1,4 @@
-package Threading;
+package FTP;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class Client {
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
         HashSet<Integer> seenreqids = new HashSet<>();
-        String filepath = "E:\\Offline1\\src\\Client Files";
+        String filepath = "E:\\CSE-322\\Offline 1\\src\\Client Files";
         //
         File clientfolder = new File(filepath);
 

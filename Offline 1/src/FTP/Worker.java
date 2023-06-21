@@ -1,14 +1,10 @@
-package Threading;
+package FTP;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Scanner;
 
 public class Worker extends Thread {
     Socket socket;
@@ -214,6 +210,8 @@ public class Worker extends Thread {
                         }
                         String message = (String) in.readObject();
                         System.out.println(message);
+                        Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
+                        Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
                     }
 
 
