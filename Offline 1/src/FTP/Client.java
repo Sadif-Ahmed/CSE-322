@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -284,6 +285,101 @@ public class Client {
                     for(int i=0;i<filelist.length;i++)
                     {
                         System.out.println((i+1)+". "+filelist[i]);
+                    }
+                }
+                else if(input.equalsIgnoreCase("upload file"))
+                {
+                    System.out.println("Give File Name: ");
+                    String fname = tin.nextLine();
+                    System.out.println("Public or Private?");
+                    String privacy = tin.nextLine();
+                    File upfile = new File(clientfolder.getAbsolutePath(), fname);
+                    if(!upfile.exists())
+                    {
+                        System.out.println("The file is absent in client system.");
+                    }
+                    else
+                    {
+                        out.writeObject(input);
+                        out.writeObject(fname);
+                        out.writeObject(privacy);
+                        out.writeObject(upfile.length());
+                        int chunksize = (int) in.readObject();
+                        int fileid = (int) in.readObject();
+                        System.out.println("the File Id is : " + fileid);
+                        System.out.println("The Server allocated chunk size is: " + chunksize);
+
+                        long num_of_chunks = (upfile.length() / chunksize) + 1 ;
+                        out.writeObject(num_of_chunks);
+                        byte[] data = Files.readAllBytes(upfile.toPath());
+                        byte[] holder = new byte[chunksize];
+                        int flag=0;
+
+                        try
+                        {
+
+                        if(num_of_chunks==1)
+                        {
+                            out.writeObject(data);
+                            socket.setSoTimeout(30000);
+                            String conf=(String) in.readObject();
+                            System.out.println(conf + " 1");
+                            socket.setSoTimeout(0);
+                        }
+                        else
+                        {
+                            for(int i=0;i<num_of_chunks-1;i++)
+                            {
+                                if(flag==0)
+                                {
+                                for(int j=0;j<chunksize;j++)
+                                {
+                                    holder[j]=data[i*chunksize+j];
+                                }
+                                out.writeObject(holder);
+                                socket.setSoTimeout(30000);
+                                String conf=(String) in.readObject();
+                                if(!conf.equalsIgnoreCase("ok"))
+                                {
+                                   flag=1;
+                                }
+                                //System.out.println(conf+"  "+(i+1));
+                                socket.setSoTimeout(0);
+                                holder = new byte[chunksize];
+                                }
+                                }
+                            if(flag==0)
+                            {
+
+                            for(long i=(num_of_chunks-1)*chunksize,j=0;i<upfile.length();i++,j++)
+                            {
+                                holder[(int) j]=data[(int) i];
+                            }
+                            out.writeObject(holder);
+
+                            }
+                        }
+
+                        }
+                        catch (SocketTimeoutException e)
+                        {
+                            flag=1;
+                            System.out.println("Upload Interrupted.");
+                            socket.setSoTimeout(0);
+                        }
+                        if(flag==0)
+                        {
+                        out.writeObject("File Upload Complete");
+                        String message= (String) in.readObject();
+                        System.out.println(message);
+                        }
+                        if(flag==1)
+                        {
+                            System.out.println("Upload Interrupted.");
+                            socket.setSoTimeout(0);
+                        }
+
+
                     }
                 }
 

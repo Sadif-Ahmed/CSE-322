@@ -1,1 +1,6 @@
 0 test.pdf
+1 privatetest.txt
+2 publictest.txt
+3 bigtest.pdf
+4 test.pdf
+5 test.pdf

@@ -24,6 +24,7 @@ public class Server {
 
     public static HashMap<Integer,String> fileuploadinfo = new HashMap<>();
     public static HashMap<Integer,String> fileuploaderinfo = new HashMap<>();
+    public static  HashMap<String , String> usermessages = new HashMap<>();
 
     public static int fileuploadcount=0;
 
