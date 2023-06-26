@@ -99,6 +99,8 @@ public class Worker extends Thread {
                         //System.out.println(Server.filerequests);
                         out.writeObject(new HashMap<>(Server.filereqsender));
                         out.writeObject(new HashMap<>(Server.filerequests));
+                        out.writeObject(new HashMap<>(Server.fulfilledrequests));
+                        out.writeObject(new HashMap<>(Server.reqfulfiller));
 
                     }
                     else if (receivedinput.equalsIgnoreCase("view allmsgs"))
@@ -106,6 +108,8 @@ public class Worker extends Thread {
                         //System.out.println(Server.filerequests);
                         out.writeObject(new HashMap<>(Server.filereqsender));
                         out.writeObject(new HashMap<>(Server.filerequests));
+                        out.writeObject(new HashMap<>(Server.fulfilledrequests));
+                        out.writeObject(new HashMap<>(Server.reqfulfiller));
                     }
                     else if(receivedinput.equalsIgnoreCase("get file"))
                     {
@@ -173,6 +177,23 @@ public class Worker extends Thread {
 
                     else if(receivedinput.equalsIgnoreCase("upload file"))
                     {
+                        String choice = (String) in.readObject();
+                        String reqfileid="";
+                        if(choice.equalsIgnoreCase("Y"))
+                        {
+                            out.writeObject(new HashMap<>(Server.filereqsender));
+                            out.writeObject(new HashMap<>(Server.filerequests));
+                            reqfileid = (String) in.readObject();
+                            System.out.println(username + " is fulfilling a request with req id :" +reqfileid);
+                        }
+                        else if(choice.equalsIgnoreCase("N"))
+                        {
+
+                        }
+                        String mes = (String) in.readObject();
+                        if(mes.equalsIgnoreCase("ok"))
+                        {
+
                         String fname = (String) in.readObject();
                         String privacy = (String) in.readObject();
                         long fsize = (long) in.readObject();
@@ -226,7 +247,14 @@ public class Worker extends Thread {
                                 Server.fileuploadcount++;
                                 Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
                                 Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
-                            }
+                                if(choice.equalsIgnoreCase("Y"))
+                                {
+                                    Server.fulfilledrequests.put(Integer.parseInt(reqfileid),fname);
+                                    Server.reqfulfiller.put(Integer.parseInt(reqfileid),username);
+                                    Server.write_hashmap(Server.fulfilledrequests,Server.fulfilledreqpath);
+                                    Server.write_hashmap(Server.reqfulfiller,Server.reqfulfillerpath);
+                                }
+                                }
                             else
                             {
                                 out.writeObject("Something Went Wrong.");
@@ -236,6 +264,12 @@ public class Worker extends Thread {
                         else
                         {
                             out.writeObject("Not ok.");
+                        }
+
+                        }
+                        else if(mes.equalsIgnoreCase("not ok"))
+                        {
+                            System.out.println("The File is not present in the Client Device");
                         }
 
                     }

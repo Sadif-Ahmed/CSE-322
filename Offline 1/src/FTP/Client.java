@@ -31,6 +31,7 @@ public class Client {
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
         HashSet<Integer> seenreqids = new HashSet<>();
+        HashSet<Integer> seenfulids = new HashSet<>();
         String filepath = "E:\\CSE-322\\Offline 1\\src\\Client Files";
         //
         File clientfolder = new File(filepath);
@@ -143,6 +144,8 @@ public class Client {
                     out.writeObject(input);
                     HashMap<Integer , String> filereqsender = (HashMap<Integer, String>) in.readObject();
                     HashMap<Integer , String> filerequests = (HashMap<Integer, String>) in.readObject();
+                    HashMap<Integer , String> fulfilledreq = (HashMap<Integer, String>) in.readObject();
+                    HashMap<Integer , String> reqfullfiller = (HashMap<Integer, String>) in.readObject();
                     //System.out.println(filerequests);
                     //System.out.println(seenreqids);
                     System.out.println("Unseen Messages: ");
@@ -153,14 +156,21 @@ public class Client {
                             System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
                             seenreqids.add(i);
                         }
+                        if(!seenfulids.contains(i) && fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
+                        {
+                            System.out.println("The request with id: "+i+" has been fulfilled by user: "+reqfullfiller.get(i)+" with the file: "+fulfilledreq.get(i));
+                            seenfulids.add(i);
+                        }
                     }
-                    filerequests.clear();
                 }
                 else if(input.equalsIgnoreCase("view allmsgs"))
                 {
                     out.writeObject(input);
                     HashMap<Integer , String> filereqsender = (HashMap<Integer, String>) in.readObject();
                     HashMap<Integer , String> filerequests = (HashMap<Integer, String>) in.readObject();
+                    HashMap<Integer , String> fulfilledreq = (HashMap<Integer, String>) in.readObject();
+                    HashMap<Integer , String> reqfullfiller = (HashMap<Integer, String>) in.readObject();
+
                     //System.out.println(filerequests);
                     //System.out.println(seenreqids);
                     System.out.println("All Messages: ");
@@ -168,9 +178,14 @@ public class Client {
                     {
                             System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
                             seenreqids.add(i);
+                        if(fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
+                        {
+                            System.out.println("The request with id: "+i+" has been fulfilled by "+reqfullfiller.get(i)+" with file name: "+fulfilledreq.get(i));
+                            seenfulids.add(i);
+                        }
 
                     }
-                    filerequests.clear();
+
                 }
                 else if(input.equalsIgnoreCase("get file"))
                 {
@@ -235,18 +250,51 @@ public class Client {
                 }
                 else if(input.equalsIgnoreCase("upload file"))
                 {
+                    out.writeObject(input);
+                    System.out.println("Are you fulfilling a previous file request?(Y/N)");
+                    String choice = tin.nextLine();
+                    out.writeObject(choice);
+                    if(choice.equalsIgnoreCase("Y"))
+                    {
+                        HashMap<Integer , String> filereqsender = (HashMap<Integer, String>) in.readObject();
+                        HashMap<Integer , String> filerequests = (HashMap<Integer, String>) in.readObject();
+                        //System.out.println(filerequests);
+                        //System.out.println(seenreqids);
+                        System.out.println("All File Requests: ");
+                        for (int i: filerequests.keySet())
+                        {
+                            System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
+                        }
+                        filerequests.clear();
+                        System.out.println("Enter the file request id you are fulfilling: ");
+                        String reqfileid = tin.nextLine();
+                        out.writeObject(reqfileid);
+                    }
+                    else if(choice.equalsIgnoreCase("N"))
+                    {
+
+                    }
                     System.out.println("Give File Name: ");
                     String fname = tin.nextLine();
-                    System.out.println("Public or Private?");
-                    String privacy = tin.nextLine();
+                    String privacy;
+                    if(choice.equalsIgnoreCase("N"))
+                    {
+                        System.out.println("Public or Private?");
+                        privacy = tin.nextLine();
+                    }
+                    else
+                    {
+                        privacy="Public";
+                    }
                     File upfile = new File(clientfolder.getAbsolutePath(), fname);
                     if(!upfile.exists())
                     {
                         System.out.println("The file is absent in client system.");
+                        out.writeObject("not ok");
                     }
                     else
                     {
-                        out.writeObject(input);
+                        out.writeObject("ok");
                         out.writeObject(fname);
                         out.writeObject(privacy);
                         out.writeObject(upfile.length());

@@ -24,7 +24,9 @@ public class Server {
 
     public static HashMap<Integer,String> fileuploadinfo = new HashMap<>();
     public static HashMap<Integer,String> fileuploaderinfo = new HashMap<>();
-    public static  HashMap<String , String> usermessages = new HashMap<>();
+    public static HashMap<Integer, String> fulfilledrequests =  new HashMap<>();
+    public static HashMap<Integer, String> reqfulfiller = new HashMap<>();
+
 
     public static int fileuploadcount=0;
 
@@ -41,6 +43,10 @@ public class Server {
 
     public static String reqlistpath = "E:\\CSE-322\\Offline 1\\src\\req_list.txt";
     public static String reqsenderpath = "E:\\CSE-322\\Offline 1\\src\\req_sender.txt";
+
+    public static String fulfilledreqpath = "E:\\CSE-322\\Offline 1\\src\\fulfilled_req.txt";
+
+    public static String reqfulfillerpath = "E:\\CSE-322\\Offline 1\\src\\req_fulfiller.txt";
    public static void write_user_list(HashSet<String> temp,String filepath)
     {
         try {
@@ -119,6 +125,8 @@ public class Server {
         Server.read_hashmap(Server.fileuploaderinfo,uploader_listpath);
         Server.read_hashmap(Server.filerequests,Server.reqlistpath);
         Server.read_hashmap(Server.filereqsender,Server.reqsenderpath);
+        Server.read_hashmap(Server.fulfilledrequests,Server.fulfilledreqpath);
+        Server.read_hashmap(Server.reqfulfiller,Server.reqfulfillerpath);
         filereqcount = filerequests.size();
         fileuploadcount = fileuploadinfo.size();
 
