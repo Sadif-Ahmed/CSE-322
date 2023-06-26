@@ -4,3 +4,6 @@
 3 bigtest.pdf
 4 test.pdf
 5 test.pdf
+6 bigtest.pdf
+7 bigtest.pdf
+8 bigtest.pdf

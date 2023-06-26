@@ -170,117 +170,74 @@ public class Worker extends Thread {
                         }
                         out.writeObject("File Download Complete");
                     }
-                    else if(receivedinput.equalsIgnoreCase("put file"))
-                    {
-                        String fname = (String) in.readObject();
-                        String privacy = (String) in.readObject();
-                        long fsize = (long) in.readObject();
-                        System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes");
-                        Server.fileuploadinfo.put(Server.fileuploadcount, fname);
-                        Server.fileuploaderinfo.put(Server.fileuploadcount, username);
-                        int chunksize = (int) Math.floor(Math.random() * (Server.MAX_CHUNK_SIZE - Server.MIN_CHUNK_SIZE + 1) + Server.MIN_CHUNK_SIZE);
-                        out.writeObject(chunksize);
-                        out.writeObject(Server.fileuploadcount);
-                        Server.fileuploadcount++;
 
-                        long numchunks = (long) in.readObject();
-                        System.out.println("The file will be received in " + numchunks + " chunks");
-                        byte[] data = new byte[(int)fsize];
-                        byte[] holder = new byte[chunksize];
-                        File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
-                        downfile.createNewFile();
-                        if(numchunks==1)
-                        {
-
-                            data = (byte[]) in.readObject();
-                            Files.write(Paths.get(downfile.getAbsolutePath()), data);
-                        }
-                        else
-                        {
-                            for(int i=0;i<numchunks-1;i++)
-                            {
-                                holder = (byte[]) in.readObject();
-                                for(int j=0;j<chunksize;j++)
-                                {
-                                    data[i*chunksize+j]=holder[j];
-                                }
-                            }
-                            holder = (byte[]) in.readObject();
-                            for(long i=(numchunks-1)*chunksize,j=0;i<fsize;i++,j++)
-                            {
-                                data[(int) i]=holder[(int) j];
-                            }
-                            Files.write(Paths.get(downfile.getAbsolutePath()), data);
-                        }
-                        String message = (String) in.readObject();
-                        System.out.println(message);
-                        Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
-                        Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
-                        if(fsize==downfile.length())
-                        {
-                            out.writeObject("File Successfully Uploaded.");
-                        }
-                        else
-                        {
-                            out.writeObject("Something Went Wrong.");
-                        }
-                    }
                     else if(receivedinput.equalsIgnoreCase("upload file"))
                     {
                         String fname = (String) in.readObject();
                         String privacy = (String) in.readObject();
                         long fsize = (long) in.readObject();
-                        System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes");
-                        Server.fileuploadinfo.put(Server.fileuploadcount, fname);
-                        Server.fileuploaderinfo.put(Server.fileuploadcount, username);
-                        int chunksize = (int) Math.floor(Math.random() * (Server.MAX_CHUNK_SIZE - Server.MIN_CHUNK_SIZE + 1) + Server.MIN_CHUNK_SIZE);
-                        out.writeObject(chunksize);
-                        out.writeObject(Server.fileuploadcount);
-                        Server.fileuploadcount++;
-
-                        long numchunks = (long) in.readObject();
-                        System.out.println("The file will be received in " + numchunks + " chunks");
-                        byte[] data = new byte[(int)fsize];
-                        byte[] holder = new byte[chunksize];
-                        File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
-                        if(numchunks==1)
+                        if (fsize<=Server.MAX_BUFFER_SIZE)
                         {
-
-                            data = (byte[]) in.readObject();
                             out.writeObject("ok");
-                        }
-                        else
-                        {
-                            for(int i=0;i<numchunks-1;i++)
+                            System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes");
+                            int chunksize = (int) Math.floor(Math.random() * (Server.MAX_CHUNK_SIZE - Server.MIN_CHUNK_SIZE + 1) + Server.MIN_CHUNK_SIZE);
+                            out.writeObject(chunksize);
+                            out.writeObject(Server.fileuploadcount);
+
+                            long numchunks = (long) in.readObject();
+                            System.out.println("The file will be received in " + numchunks + " chunks");
+                            Server.data = new byte[(int)fsize];
+                            byte[] holder = new byte[chunksize];
+                            File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
+                            if(numchunks==1)
                             {
-                                holder = (byte[]) in.readObject();
+
+                                Server.data = (byte[]) in.readObject();
                                 out.writeObject("ok");
-                                for(int j=0;j<chunksize;j++)
-                                {
-                                    data[i*chunksize+j]=holder[j];
-                                }
                             }
-                            holder = (byte[]) in.readObject();
-                            for(long i=(numchunks-1)*chunksize,j=0;i<fsize;i++,j++)
+                            else
                             {
-                                data[(int) i]=holder[(int) j];
+                                for(int i=0;i<numchunks-1;i++)
+                                {
+                                    holder = (byte[]) in.readObject();
+                                    out.writeObject("ok");
+                                    for(int j=0;j<chunksize;j++)
+                                    {
+                                        Server.data[i*chunksize+j]=holder[j];
+                                    }
+                                }
+                                holder = (byte[]) in.readObject();
+                                for(long i=(numchunks-1)*chunksize,j=0;i<fsize;i++,j++)
+                                {
+                                    Server.data[(int) i]=holder[(int) j];
+                                }
+
+                            }
+                            downfile.createNewFile();
+                            Files.write(Paths.get(downfile.getAbsolutePath()), Server.data);
+                            String message = (String) in.readObject();
+                            System.out.println(message);
+
+                            if(fsize==downfile.length())
+                            {
+                                out.writeObject("File Successfully Uploaded.");
+                                Server.fileuploadinfo.put(Server.fileuploadcount, fname);
+                                Server.fileuploaderinfo.put(Server.fileuploadcount, username);
+                                Server.fileuploadcount++;
+                                Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
+                                Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
+                            }
+                            else
+                            {
+                                out.writeObject("Something Went Wrong.");
                             }
 
                         }
-                        downfile.createNewFile();
-                        Files.write(Paths.get(downfile.getAbsolutePath()), data);
-                        String message = (String) in.readObject();
-                        System.out.println(message);
-                        Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
-                        Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
-                        if(fsize==downfile.length())
-                        {
-                            out.writeObject("File Successfully Uploaded.");
-                        }
                         else
                         {
-                            out.writeObject("Something Went Wrong.");
+                            out.writeObject("Not ok.");
                         }
+
                     }
 
 
@@ -292,6 +249,7 @@ public class Worker extends Thread {
                     Server.active_users.remove(username);
                     Server.activeusersockets.remove(username);
                     System.out.println(username+" has logged out.");
+                    Server.data=new byte[Server.MAX_BUFFER_SIZE];
                     break;
                 }
 

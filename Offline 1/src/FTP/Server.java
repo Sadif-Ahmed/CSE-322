@@ -28,11 +28,13 @@ public class Server {
 
     public static int fileuploadcount=0;
 
-    public static int MAX_BUFFER_SIZE;
+    public static int MAX_BUFFER_SIZE= 1073741824;
 
     public static int MAX_CHUNK_SIZE=5000;
 
     public static int MIN_CHUNK_SIZE=1000;
+
+    public static byte[] data = new byte[MAX_BUFFER_SIZE];
 
     public static String filelistpath = "E:\\CSE-322\\Offline 1\\src\\file_list.txt";
     public static String uploader_listpath= "E:\\CSE-322\\Offline 1\\src\\uploader_list.txt";

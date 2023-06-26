@@ -224,60 +224,6 @@ public class Client {
                     }
 
                 }
-                else if(input.equalsIgnoreCase("put file"))
-                {
-                    System.out.println("Give File Name: ");
-                    String fname = tin.nextLine();
-                    System.out.println("Public or Private?");
-                    String privacy = tin.nextLine();
-                    File upfile = new File(clientfolder.getAbsolutePath(), fname);
-                    if(!upfile.exists())
-                    {
-                        System.out.println("The file is absent in client system.");
-                    }
-                    else
-                    {
-                        out.writeObject(input);
-                        out.writeObject(fname);
-                        out.writeObject(privacy);
-                        out.writeObject(upfile.length());
-                        int chunksize = (int) in.readObject();
-                        int fileid = (int) in.readObject();
-                        System.out.println("the File Id is : " + fileid);
-                        System.out.println("The Server allocated chunk size is: " + chunksize);
-
-                        long num_of_chunks = (upfile.length() / chunksize) + 1 ;
-                        out.writeObject(num_of_chunks);
-                        byte[] data = Files.readAllBytes(upfile.toPath());
-                        byte[] holder = new byte[chunksize];
-
-                        if(num_of_chunks==1)
-                        {
-                            out.writeObject(data);
-                        }
-                        else
-                        {
-                            for(int i=0;i<num_of_chunks-1;i++)
-                            {
-                                for(int j=0;j<chunksize;j++)
-                                {
-                                    holder[j]=data[i*chunksize+j];
-                                }
-                                out.writeObject(holder);
-                                holder = new byte[chunksize];
-                            }
-
-                            for(long i=(num_of_chunks-1)*chunksize,j=0;i<upfile.length();i++,j++)
-                            {
-                                holder[(int) j]=data[(int) i];
-                            }
-                            out.writeObject(holder);
-                    }
-                        out.writeObject("File Upload Complete");
-                        String message= (String) in.readObject();
-                        System.out.println(message);
-                    }
-                }
                 else if(input.equalsIgnoreCase("ls localfiles"))
                 {
                     String [] filelist = clientfolder.list();
@@ -304,83 +250,93 @@ public class Client {
                         out.writeObject(fname);
                         out.writeObject(privacy);
                         out.writeObject(upfile.length());
-                        int chunksize = (int) in.readObject();
-                        int fileid = (int) in.readObject();
-                        System.out.println("the File Id is : " + fileid);
-                        System.out.println("The Server allocated chunk size is: " + chunksize);
-
-                        long num_of_chunks = (upfile.length() / chunksize) + 1 ;
-                        out.writeObject(num_of_chunks);
-                        byte[] data = Files.readAllBytes(upfile.toPath());
-                        byte[] holder = new byte[chunksize];
-                        int flag=0;
-
-                        try
+                        String mes= (String) in.readObject();
+                        if(mes.equalsIgnoreCase("ok"))
                         {
+                            int chunksize = (int) in.readObject();
+                            int fileid = (int) in.readObject();
+                            System.out.println("the File Id is : " + fileid);
+                            System.out.println("The Server allocated chunk size is: " + chunksize);
 
-                        if(num_of_chunks==1)
-                        {
-                            out.writeObject(data);
-                            socket.setSoTimeout(30000);
-                            String conf=(String) in.readObject();
-                            System.out.println(conf + " 1");
-                            socket.setSoTimeout(0);
-                        }
-                        else
-                        {
-                            for(int i=0;i<num_of_chunks-1;i++)
+                            long num_of_chunks = (upfile.length() / chunksize) + 1 ;
+                            out.writeObject(num_of_chunks);
+                            byte [] data = Files.readAllBytes(upfile.toPath());
+                            byte[] holder = new byte[chunksize];
+                            int flag=0;
+
+                            try
                             {
-                                if(flag==0)
+
+                                if(num_of_chunks==1)
                                 {
-                                for(int j=0;j<chunksize;j++)
-                                {
-                                    holder[j]=data[i*chunksize+j];
+                                    out.writeObject(data);
+                                    socket.setSoTimeout(30000);
+                                    String conf=(String) in.readObject();
+                                    System.out.println(conf + " 1");
+                                    socket.setSoTimeout(0);
                                 }
-                                out.writeObject(holder);
-                                socket.setSoTimeout(30000);
-                                String conf=(String) in.readObject();
-                                if(!conf.equalsIgnoreCase("ok"))
+                                else
                                 {
-                                   flag=1;
+                                    for(int i=0;i<num_of_chunks-1;i++)
+                                    {
+                                        if(flag==0)
+                                        {
+                                            for(int j=0;j<chunksize;j++)
+                                            {
+                                                holder[j]=data[i*chunksize+j];
+                                            }
+                                            out.writeObject(holder);
+                                            socket.setSoTimeout(30000);
+                                            String conf=(String) in.readObject();
+                                            if(!conf.equalsIgnoreCase("ok"))
+                                            {
+                                                flag=1;
+                                            }
+                                            //System.out.println(conf+"  "+(i+1));
+                                            socket.setSoTimeout(0);
+                                            holder = new byte[chunksize];
+                                        }
+                                    }
+                                    if(flag==0)
+                                    {
+
+                                        for(long i=(num_of_chunks-1)*chunksize,j=0;i<upfile.length();i++,j++)
+                                        {
+                                            holder[(int) j]=data[(int) i];
+                                        }
+                                        out.writeObject(holder);
+
+                                    }
                                 }
-                                //System.out.println(conf+"  "+(i+1));
+
+                            }
+                            catch (SocketTimeoutException e)
+                            {
+                                flag=1;
+                                System.out.println("Upload Interrupted.");
                                 socket.setSoTimeout(0);
-                                holder = new byte[chunksize];
-                                }
-                                }
+                            }
                             if(flag==0)
                             {
-
-                            for(long i=(num_of_chunks-1)*chunksize,j=0;i<upfile.length();i++,j++)
+                                out.writeObject("File Upload Complete");
+                                String message= (String) in.readObject();
+                                System.out.println(message);
+                                socket.setSoTimeout(0);
+                            }
+                            if(flag==1)
                             {
-                                holder[(int) j]=data[(int) i];
+                                System.out.println("Upload Interrupted.");
+                                socket.setSoTimeout(0);
                             }
-                            out.writeObject(holder);
 
-                            }
-                        }
 
                         }
-                        catch (SocketTimeoutException e)
+                        else if(mes.equalsIgnoreCase("Not ok"))
                         {
-                            flag=1;
-                            System.out.println("Upload Interrupted.");
-                            socket.setSoTimeout(0);
+                            System.out.println("The File Size Crosses the Maximum File Buffer Size.");
                         }
-                        if(flag==0)
-                        {
-                        out.writeObject("File Upload Complete");
-                        String message= (String) in.readObject();
-                        System.out.println(message);
-                        }
-                        if(flag==1)
-                        {
-                            System.out.println("Upload Interrupted.");
-                            socket.setSoTimeout(0);
                         }
 
-
-                    }
                 }
 
                 else {
