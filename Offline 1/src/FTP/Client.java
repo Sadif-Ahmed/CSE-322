@@ -25,13 +25,13 @@ public class Client {
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
         Scanner tin = new Scanner(System.in);
+
         int logflag = 0;
         String uname = "";
         String input = "";
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
         HashSet<Integer> seenreqids = new HashSet<>();
-        HashSet<Integer> seenfulids = new HashSet<>();
         String filepath = "E:\\CSE-322\\Offline 1\\src\\Client Files";
         //
         File clientfolder = new File(filepath);
@@ -156,10 +156,10 @@ public class Client {
                             System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
                             seenreqids.add(i);
                         }
-                        if(!seenfulids.contains(i) && fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
+                        if(fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
                         {
                             System.out.println("The request with id: "+i+" has been fulfilled by user: "+reqfullfiller.get(i)+" with the file: "+fulfilledreq.get(i));
-                            seenfulids.add(i);
+
                         }
                     }
                 }
@@ -181,7 +181,7 @@ public class Client {
                         if(fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
                         {
                             System.out.println("The request with id: "+i+" has been fulfilled by "+reqfullfiller.get(i)+" with file name: "+fulfilledreq.get(i));
-                            seenfulids.add(i);
+
                         }
 
                     }
@@ -320,7 +320,7 @@ public class Client {
                                     out.writeObject(data);
                                     socket.setSoTimeout(30000);
                                     String conf=(String) in.readObject();
-                                    System.out.println(conf + " 1");
+                                    //System.out.println(conf + " 1");
                                     socket.setSoTimeout(0);
                                 }
                                 else
@@ -361,7 +361,7 @@ public class Client {
                             catch (SocketTimeoutException e)
                             {
                                 flag=1;
-                                System.out.println("Upload Interrupted.");
+                                System.out.println("Upload Interrupted.Time out Exception.");
                                 socket.setSoTimeout(0);
                             }
                             if(flag==0)
@@ -379,7 +379,7 @@ public class Client {
 
 
                         }
-                        else if(mes.equalsIgnoreCase("Not ok"))
+                        else if(mes.equalsIgnoreCase("not ok"))
                         {
                             System.out.println("The File Size Crosses the Maximum File Buffer Size.");
                         }

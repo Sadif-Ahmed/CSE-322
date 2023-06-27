@@ -8,9 +8,11 @@ import java.util.HashSet;
 import java.util.Scanner;
 
 public class Server {
+
+    public static String srcpath = "E:\\CSE-322\\Offline 1\\src";
     public static HashSet<String> users=new HashSet<>();
     public static HashSet<String> active_users=new HashSet<>();
-    public static String orignalPath = "E:\\CSE-322\\Offline 1\\src\\Server Files";
+    public static String orignalPath = srcpath+"\\Server Files";
     public static File workingDir ;
 
 
@@ -28,6 +30,8 @@ public class Server {
     public static HashMap<Integer, String> reqfulfiller = new HashMap<>();
 
 
+
+
     public static int fileuploadcount=0;
 
     public static int MAX_BUFFER_SIZE= 1073741824;
@@ -38,15 +42,17 @@ public class Server {
 
     public static byte[] data = new byte[MAX_BUFFER_SIZE];
 
-    public static String filelistpath = "E:\\CSE-322\\Offline 1\\src\\file_list.txt";
-    public static String uploader_listpath= "E:\\CSE-322\\Offline 1\\src\\uploader_list.txt";
+    public static String filelistpath = srcpath+"\\Lists\\file_list.txt";
+    public static String uploader_listpath= srcpath+"\\Lists\\uploader_list.txt";
 
-    public static String reqlistpath = "E:\\CSE-322\\Offline 1\\src\\req_list.txt";
-    public static String reqsenderpath = "E:\\CSE-322\\Offline 1\\src\\req_sender.txt";
+    public static String reqlistpath = srcpath+"\\Lists\\req_list.txt";
+    public static String reqsenderpath = srcpath+"\\Lists\\req_sender.txt";
 
-    public static String fulfilledreqpath = "E:\\CSE-322\\Offline 1\\src\\fulfilled_req.txt";
+    public static String fulfilledreqpath = srcpath+"\\Lists\\fulfilled_req.txt";
 
-    public static String reqfulfillerpath = "E:\\CSE-322\\Offline 1\\src\\req_fulfiller.txt";
+    public static String reqfulfillerpath = srcpath+"\\Lists\\req_fulfiller.txt";
+
+    public static String userfilepath = srcpath+"\\Lists\\user_list.txt";
    public static void write_user_list(HashSet<String> temp,String filepath)
     {
         try {
@@ -114,12 +120,16 @@ public class Server {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        System.out.println(temp);
+        //System.out.println(temp);
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        ServerSocket welcomeSocket = new ServerSocket(6666);
-        String userfilepath = "E:\\CSE-322\\Offline 1\\src\\user_list.txt";
+
+       ServerSocket welcomeSocket = new ServerSocket(6666);
+        Scanner tin = new Scanner(System.in);
+        System.out.println("Enter the absolute path of src folder: ");
+        srcpath=tin.nextLine();
+
         Server.read_user_list(users, userfilepath);
         Server.read_hashmap(Server.fileuploadinfo,filelistpath);
         Server.read_hashmap(Server.fileuploaderinfo,uploader_listpath);

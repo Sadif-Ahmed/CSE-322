@@ -1,0 +1,19 @@
+1. ls users : Shows all the users who once logged into the server at least once while highlighting the currently active ones.
+
+2.ls files: Shows the logged in user's public and private files in the server.
+
+3.ls allfiles: Shows all the public files of all users in the server.
+
+4.ls localfiles: Shows the local files in the user's device folder.
+
+5.req file: Request a file with a short description.
+
+6.view msgs: Show unseen messages of the client.
+
+7.view allmsgs: Show all the messages revieved by the client.
+
+8.get file: Download a file from any user's public folder or the current user's public and private folder.
+
+9.upload file: Upload a file to the server with acknowledgement from the server.
+
+10.logout: Log out.

@@ -263,7 +263,8 @@ public class Worker extends Thread {
                         }
                         else
                         {
-                            out.writeObject("Not ok.");
+                            out.writeObject("not ok");
+                            System.out.println("The Server Does not have enough space for the file");
                         }
 
                         }
