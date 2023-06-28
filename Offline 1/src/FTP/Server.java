@@ -130,6 +130,56 @@ public class Server {
         System.out.println("Enter the absolute path of src folder: ");
         srcpath=tin.nextLine();
 
+        File temp;
+
+        temp=new File(orignalPath);
+        if(!temp.exists())
+        {
+            temp.mkdir();
+        }
+
+        temp=new File(srcpath+"\\Lists");
+        if(!temp.exists())
+        {
+            temp.mkdir();
+        }
+
+        temp=new File(userfilepath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(filelistpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(reqlistpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(fulfilledreqpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(reqfulfillerpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(reqsenderpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(uploader_listpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+
         Server.read_user_list(users, userfilepath);
         Server.read_hashmap(Server.fileuploadinfo,filelistpath);
         Server.read_hashmap(Server.fileuploaderinfo,uploader_listpath);

@@ -25,18 +25,25 @@ public class Client {
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
         Scanner tin = new Scanner(System.in);
-
+        String srcpath="E:\\CSE-322\\Offline 1\\src";
         int logflag = 0;
         String uname = "";
         String input = "";
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
         HashSet<Integer> seenreqids = new HashSet<>();
-        String filepath = "E:\\CSE-322\\Offline 1\\src\\Client Files";
+        System.out.println("Enter the absolute path of src: ");
+        srcpath= tin.nextLine();
+        String filepath = srcpath+"\\Client Files";
         //
         File clientfolder = new File(filepath);
 
         while (true) {
+            File temp = new File(filepath);
+            if(!temp.exists())
+            {
+                temp.mkdir();
+            }
             if(!socket.isConnected())
             {
                 System.out.println("The Server disconnected.Closing client");
