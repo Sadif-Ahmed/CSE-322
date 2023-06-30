@@ -12,6 +12,9 @@ public class Worker extends Thread {
     ObjectInputStream in;
     String username;
     File workingDir;
+    int fileid;
+
+
     public Worker(Socket socket,ObjectInputStream in,ObjectOutputStream out,String username,File workingDir)
     {
         this.socket = socket;
@@ -200,20 +203,23 @@ public class Worker extends Thread {
                         if (fsize<=Server.MAX_BUFFER_SIZE)
                         {
                             out.writeObject("ok");
-                            System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes");
+                            fileid=Server.fileuploadcount++;
+                            System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes assigned fileid "+Server.fileuploadcount);
                             int chunksize = (int) Math.floor(Math.random() * (Server.MAX_CHUNK_SIZE - Server.MIN_CHUNK_SIZE + 1) + Server.MIN_CHUNK_SIZE);
                             out.writeObject(chunksize);
                             out.writeObject(Server.fileuploadcount);
 
                             long numchunks = (long) in.readObject();
                             System.out.println("The file will be received in " + numchunks + " chunks");
-                            Server.data = new byte[(int)fsize];
+                            byte [] data = new byte[(int)fsize];
+                            Server.datamap.put(fileid,new byte[(int)fsize] );
                             byte[] holder = new byte[chunksize];
                             File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
                             if(numchunks==1)
                             {
 
-                                Server.data = (byte[]) in.readObject();
+                                data = (byte[]) in.readObject();
+                                Server.datamap.put(fileid,data);
                                 out.writeObject("ok");
                             }
                             else
@@ -224,27 +230,29 @@ public class Worker extends Thread {
                                     out.writeObject("ok");
                                     for(int j=0;j<chunksize;j++)
                                     {
-                                        Server.data[i*chunksize+j]=holder[j];
+                                        data[i*chunksize+j]=holder[j];
                                     }
+                                    Server.datamap.put(fileid,data);
+
                                 }
                                 holder = (byte[]) in.readObject();
                                 for(long i=(numchunks-1)*chunksize,j=0;i<fsize;i++,j++)
                                 {
-                                    Server.data[(int) i]=holder[(int) j];
+                                    data[(int) i]=holder[(int) j];
                                 }
+                                Server.datamap.put(fileid,data);
 
                             }
                             downfile.createNewFile();
-                            Files.write(Paths.get(downfile.getAbsolutePath()), Server.data);
+                            Files.write(Paths.get(downfile.getAbsolutePath()), Server.datamap.get(fileid));
                             String message = (String) in.readObject();
                             System.out.println(message);
 
                             if(fsize==downfile.length())
                             {
                                 out.writeObject("File Successfully Uploaded.");
-                                Server.fileuploadinfo.put(Server.fileuploadcount, fname);
-                                Server.fileuploaderinfo.put(Server.fileuploadcount, username);
-                                Server.fileuploadcount++;
+                                Server.fileuploadinfo.put(fileid, fname);
+                                Server.fileuploaderinfo.put(fileid, username);
                                 Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
                                 Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
                                 if(choice.equalsIgnoreCase("Y"))
@@ -258,6 +266,7 @@ public class Worker extends Thread {
                             else
                             {
                                 out.writeObject("Something Went Wrong.");
+                                Server.datamap.remove(fileid);
                             }
 
                         }
@@ -275,8 +284,6 @@ public class Worker extends Thread {
 
                     }
 
-
-                    receivedinput = "";
                 }
                 catch (IOException |  ClassNotFoundException  e)
                 {
@@ -284,7 +291,11 @@ public class Worker extends Thread {
                     Server.active_users.remove(username);
                     Server.activeusersockets.remove(username);
                     System.out.println(username+" has logged out.");
-                    Server.data=new byte[Server.MAX_BUFFER_SIZE];
+                    if(receivedinput.equalsIgnoreCase("upload file"))
+                    {
+                        Server.datamap.remove(fileid);
+                    }
+
                     break;
                 }
 

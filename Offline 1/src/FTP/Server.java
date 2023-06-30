@@ -40,8 +40,6 @@ public class Server {
 
     public static int MIN_CHUNK_SIZE=1000;
 
-    public static byte[] data = new byte[MAX_BUFFER_SIZE];
-
     public static HashMap<Integer,byte[]> datamap = new HashMap<>(); ;
 
     public static String filelistpath = srcpath+"\\Lists\\file_list.txt";
@@ -229,7 +227,7 @@ public class Server {
                             tempdir.mkdir();
                             tempdir=new File(workingDir.getAbsolutePath(),"Private");
                             tempdir.mkdir();
-                            System.out.println("Directory Created for " + username);
+                            System.out.println("First Time user detected.Directory Created for " + username);
                         }
                     }
 

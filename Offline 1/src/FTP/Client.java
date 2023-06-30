@@ -32,10 +32,14 @@ public class Client {
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
         HashSet<Integer> seenreqids = new HashSet<>();
+        HashSet<String > seenfulids = new HashSet<>();
+
+
 //        System.out.println("Enter the absolute path of src: ");
 //        srcpath= tin.nextLine();
+
+
         String filepath = srcpath+"\\Client Files";
-        //
         File clientfolder = new File(filepath);
 
         while (true) {
@@ -163,9 +167,10 @@ public class Client {
                             System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
                             seenreqids.add(i);
                         }
-                        if(fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
+                        if(!seenfulids.contains(reqfullfiller.get(i)+" "+fulfilledreq.get(i)) && fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
                         {
                             System.out.println("The request with id: "+i+" has been fulfilled by user: "+reqfullfiller.get(i)+" with the file: "+fulfilledreq.get(i));
+                            seenfulids.add(reqfullfiller.get(i)+" "+fulfilledreq.get(i));
 
                         }
                     }
@@ -188,7 +193,7 @@ public class Client {
                         if(fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
                         {
                             System.out.println("The request with id: "+i+" has been fulfilled by "+reqfullfiller.get(i)+" with file name: "+fulfilledreq.get(i));
-
+                            seenfulids.add(reqfullfiller.get(i)+" "+fulfilledreq.get(i));
                         }
 
                     }
