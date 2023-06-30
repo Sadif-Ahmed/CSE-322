@@ -42,6 +42,8 @@ public class Server {
 
     public static byte[] data = new byte[MAX_BUFFER_SIZE];
 
+    public static HashMap<Integer,byte[]> datamap = new HashMap<>(); ;
+
     public static String filelistpath = srcpath+"\\Lists\\file_list.txt";
     public static String uploader_listpath= srcpath+"\\Lists\\uploader_list.txt";
 
@@ -126,59 +128,65 @@ public class Server {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
        ServerSocket welcomeSocket = new ServerSocket(6666);
-        Scanner tin = new Scanner(System.in);
-        System.out.println("Enter the absolute path of src folder: ");
-        srcpath=tin.nextLine();
-
-        File temp;
-
-        temp=new File(orignalPath);
-        if(!temp.exists())
-        {
-            temp.mkdir();
-        }
-
-        temp=new File(srcpath+"\\Lists");
-        if(!temp.exists())
-        {
-            temp.mkdir();
-        }
-
-        temp=new File(userfilepath);
-        if(!temp.exists())
-        {
-            temp.createNewFile();
-        }
-        temp=new File(filelistpath);
-        if(!temp.exists())
-        {
-            temp.createNewFile();
-        }
-        temp=new File(reqlistpath);
-        if(!temp.exists())
-        {
-            temp.createNewFile();
-        }
-        temp=new File(fulfilledreqpath);
-        if(!temp.exists())
-        {
-            temp.createNewFile();
-        }
-        temp=new File(reqfulfillerpath);
-        if(!temp.exists())
-        {
-            temp.createNewFile();
-        }
-        temp=new File(reqsenderpath);
-        if(!temp.exists())
-        {
-            temp.createNewFile();
-        }
-        temp=new File(uploader_listpath);
-        if(!temp.exists())
-        {
-            temp.createNewFile();
-        }
+//        Scanner tin = new Scanner(System.in);
+//        System.out.println("Enter the absolute path of src folder: ");
+//        srcpath=tin.nextLine();
+//
+//        File temp;
+//
+//        temp=new File(orignalPath);
+//        if(!temp.exists())
+//        {
+//            temp.mkdir();
+//        }
+//
+//        temp=new File(srcpath+"\\Lists");
+//        if(!temp.exists())
+//        {
+//            temp.mkdir();
+//        }
+//
+//        temp=new File(userfilepath);
+//        if(!temp.exists())
+//        {
+//            temp.createNewFile();
+//        }
+//        temp=new File(filelistpath);
+//        if(!temp.exists())
+//        {
+//            temp.createNewFile();
+//        }
+//        temp=new File(reqlistpath);
+//        if(!temp.exists())
+//        {
+//            temp.createNewFile();
+//        }
+//        temp=new File(fulfilledreqpath);
+//        if(!temp.exists())
+//        {
+//            temp.createNewFile();
+//        }
+//        temp=new File(reqfulfillerpath);
+//        if(!temp.exists())
+//        {
+//            temp.createNewFile();
+//        }
+//        temp=new File(reqsenderpath);
+//        if(!temp.exists())
+//        {
+//            temp.createNewFile();
+//        }
+//        temp=new File(uploader_listpath);
+//        if(!temp.exists())
+//        {
+//            temp.createNewFile();
+//        }
+//        System.out.println("Enter the Maximum Buffer Size:");
+//        Server.MAX_BUFFER_SIZE=Integer.parseInt(tin.nextLine());
+//        System.out.println("Enter the Maximum Chunk Size:");
+//        Server.MAX_CHUNK_SIZE=Integer.parseInt(tin.nextLine());
+//        System.out.println("Enter the Minimum Chunk Size:");
+//        Server.MIN_CHUNK_SIZE=Integer.parseInt(tin.nextLine());
 
         Server.read_user_list(users, userfilepath);
         Server.read_hashmap(Server.fileuploadinfo,filelistpath);

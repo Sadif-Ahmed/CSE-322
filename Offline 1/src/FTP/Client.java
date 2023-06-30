@@ -32,8 +32,8 @@ public class Client {
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
         HashSet<Integer> seenreqids = new HashSet<>();
-        System.out.println("Enter the absolute path of src: ");
-        srcpath= tin.nextLine();
+//        System.out.println("Enter the absolute path of src: ");
+//        srcpath= tin.nextLine();
         String filepath = srcpath+"\\Client Files";
         //
         File clientfolder = new File(filepath);
