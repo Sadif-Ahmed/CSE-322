@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public class Worker extends Thread {
     Socket socket;
+    Socket bsocket;
     ObjectOutputStream out;
     ObjectInputStream in;
     String username;
@@ -15,13 +16,14 @@ public class Worker extends Thread {
     int fileid;
 
 
-    public Worker(Socket socket,ObjectInputStream in,ObjectOutputStream out,String username,File workingDir)
+    public Worker(Socket socket,ObjectInputStream in,ObjectOutputStream out,String username,File workingDir,Socket bsocket)
     {
         this.socket = socket;
         this.in=in;
         this.out=out;
         this.username=username;
         this.workingDir=workingDir;
+        this.bsocket=bsocket;
     }
 
     public void run()
@@ -95,6 +97,11 @@ public class Worker extends Thread {
                         Server.write_hashmap(Server.filerequests,Server.reqlistpath);
                         Server.write_hashmap(Server.filereqsender,Server.reqsenderpath);
                         out.writeObject(message);
+                        for(String i : Server.activeusersockets.keySet())
+                        {
+                            ObjectOutputStream tempout = new ObjectOutputStream(Server.activeusersockets.get(i).getOutputStream());
+                            tempout.writeObject(message);
+                        }
 
                     }
                     else if (receivedinput.equalsIgnoreCase("view msgs"))
@@ -261,6 +268,11 @@ public class Worker extends Thread {
                                     Server.reqfulfiller.put(Integer.parseInt(reqfileid),username);
                                     Server.write_hashmap(Server.fulfilledrequests,Server.fulfilledreqpath);
                                     Server.write_hashmap(Server.reqfulfiller,Server.reqfulfillerpath);
+
+                                    ObjectOutputStream tempout = new ObjectOutputStream(Server.activeusersockets.get(Server.filereqsender.get(Integer.parseInt(reqfileid))).getOutputStream());
+                                    message = "Your request with id: "+reqfileid+" has been fulfilled by user: "+Server.reqfulfiller.get(Integer.parseInt(reqfileid))+" with the file: "+Server.fulfilledrequests.get(Integer.parseInt(reqfileid));
+                                    tempout.writeObject(message);
+
                                 }
                                 }
                             else

@@ -201,6 +201,7 @@ public class Server {
 
             System.out.println("Waiting for connection...");
             Socket socket = welcomeSocket.accept();
+            Socket bsocket = welcomeSocket.accept();
             System.out.println("Connection established");
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -211,7 +212,7 @@ public class Server {
                 {
                     active_users.add(username);
                 }
-                activeusersockets.put(username,socket);
+                activeusersockets.put(username,bsocket);
                 out.writeObject("Ok");
                 if(!users.contains(username))
                 {
@@ -235,11 +236,10 @@ public class Server {
                 else
                 {
                     workingDir = new File (orignalPath,username);
+                    //System.out.println(workingDir);
                 }
                 // open thread
-
-                //System.out.println(workingDir);
-                Thread worker = new Worker(socket,in,out,username,workingDir);
+                Thread worker = new Worker(socket,in,out,username,workingDir,bsocket);
                 worker.start();
             }
             else

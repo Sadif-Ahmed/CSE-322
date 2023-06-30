@@ -16,9 +16,12 @@ public class Client {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Socket socket = new Socket("localhost", 6666);
+        Socket bsocket = new Socket("localhost", 6666);
         System.out.println("Connection established");
         System.out.println("Remote port: " + socket.getPort());
         System.out.println("Local port: " + socket.getLocalPort());
+
+
 
         // buffers
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -33,6 +36,10 @@ public class Client {
         HashSet<String> active_users = new HashSet<String>();
         HashSet<Integer> seenreqids = new HashSet<>();
         HashSet<String > seenfulids = new HashSet<>();
+
+        // open thread
+        Thread worker = new ClientWorker(bsocket);
+        worker.start();
 
 
 //        System.out.println("Enter the absolute path of src: ");
@@ -52,6 +59,8 @@ public class Client {
             {
                 System.out.println("The Server disconnected.Closing client");
                 socket.close();
+                bsocket.close();
+                worker.interrupt();
                 break;
             }
             if (logflag == 0) {
@@ -67,9 +76,14 @@ public class Client {
                     {
                         clientfolder.mkdir();
                     }
-                } else if (inputstring.equalsIgnoreCase("NotOk")) {
+
+
+                }
+                else if (inputstring.equalsIgnoreCase("NotOk")) {
                     System.out.println("You are already logged in another system");
                     socket.close();
+                    bsocket.close();
+                    worker.interrupt();
                     break;
                 }
             }
@@ -78,6 +92,8 @@ public class Client {
                 {
                     System.out.println("The Server disconnected.Closing client");
                     socket.close();
+                    bsocket.close();
+                    worker.interrupt();
                     break;
                 }
 
@@ -95,13 +111,15 @@ public class Client {
                             System.out.println(i);
                         }
                     }
-                    input = "";
+
                 } else if (input.equalsIgnoreCase("logout")) {
                     out.writeObject(input);
                     input = (String) in.readObject();
                     if (input.equalsIgnoreCase("ok")) {
                         System.out.println("Log out Successful");
                         socket.close();
+                        bsocket.close();
+                        worker.interrupt();
                         break;
                     }
                 }
