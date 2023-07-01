@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Worker extends Thread {
     Socket socket;
@@ -45,11 +46,11 @@ public class Worker extends Thread {
                     {
 
                         synchronized (Server.users){
-                            out.writeObject(Server.users);
+                            out.writeObject(new HashSet<>(Server.users));
                         }
                         synchronized (Server.active_users)
                         {
-                            out.writeObject(Server.active_users);
+                            out.writeObject(new HashSet<>(Server.active_users));
                         }
 
                         receivedinput = "";
@@ -297,6 +298,60 @@ public class Worker extends Thread {
                         {
                             System.out.println("The File is not present in the Client Device");
                         }
+
+                    } else if (receivedinput.equalsIgnoreCase("delete file")) {
+
+                            String filename = (String) in.readObject();
+                            File inputfile;
+
+                            inputfile = new File(workingDir.getAbsolutePath()+"/Public",filename);
+                            if(!inputfile.exists())
+                            {
+                                inputfile = new File(workingDir.getAbsolutePath()+"/Private",filename);
+                                if (!inputfile.exists())
+                                {
+                                    out.writeObject("File does not Exist.");
+                                    continue;
+                                }
+                            }
+                            out.writeObject("File Exists.");
+                            String choice =(String) in.readObject();
+                            if(choice.equalsIgnoreCase("Y"))
+                            {
+                                int fileid=-1;
+                                int reqid=-1;
+                                for(int i : Server.fileuploadinfo.keySet())
+                                {
+                                        if(Server.fileuploadinfo.get(i).equalsIgnoreCase(filename) && Server.fileuploaderinfo.get(i).equalsIgnoreCase(username))
+                                        {
+                                            fileid=i;
+                                        }
+
+                                }
+
+                                Server.fileuploaderinfo.remove(fileid);
+                                Server.fileuploadinfo.remove(fileid);
+                                Server.write_hashmap(Server.fileuploadinfo,Server.filelistpath);
+                                Server.write_hashmap(Server.fileuploaderinfo,Server.uploader_listpath);
+                                for(int i : Server.fulfilledrequests.keySet())
+                                {
+
+                                        if(Server.fulfilledrequests.get(i).equalsIgnoreCase(filename) && Server.reqfulfiller.get(i).equalsIgnoreCase(username))
+                                        {
+                                            reqid=i;
+                                        }
+
+                                }
+                                Server.fulfilledrequests.remove(reqid);
+                                Server.reqfulfiller.remove(reqid);
+                                Server.write_hashmap(Server.fulfilledrequests,Server.fulfilledreqpath);
+                                Server.write_hashmap(Server.reqfulfiller,Server.reqfulfillerpath);
+
+                                inputfile.delete();
+                                out.writeObject("The file is Deleted from Server.");
+                            } else if (choice.equalsIgnoreCase("N")) {
+
+                            }
 
                     }
 

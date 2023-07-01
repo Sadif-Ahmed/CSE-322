@@ -465,9 +465,27 @@ public class Client {
                         }
                         }
 
-                }
+                } else if (input.equalsIgnoreCase("delete file")) {
+                    out.writeObject(input);
+                    System.out.println("Give Filename: ");
+                    String filename = tin.nextLine();
+                    out.writeObject(filename);
+                    String message = (String) in.readObject();
+                    System.out.println(message);
+                    if(message.equalsIgnoreCase("File Exists."))
+                    {
+                        System.out.println("Do you really want to delete the file in server?(Y/N)");
+                        String choice = tin.nextLine();
+                        out.writeObject(choice);
+                        if(choice.equalsIgnoreCase("Y"))
+                        {
+                            String conf = (String) in.readObject();
+                            System.out.println(conf);
+                        }
 
-                else {
+                    }
+
+                } else {
                     System.out.println("Invalid Command Try Again");
                 }
             }

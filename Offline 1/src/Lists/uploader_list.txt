@@ -1,4 +1,3 @@
-0 sadif
 1 sadif
 2 sadif
 3 sadif
@@ -10,8 +9,6 @@
 9 sadif
 10 kamal
 11 mohaimin
-12 sadif
 13 kamal
 14 kamal
-15 sadif
 16 mohaimin
