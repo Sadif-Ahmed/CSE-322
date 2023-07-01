@@ -109,12 +109,17 @@ public class Client {
                     {
                         clientfolder.mkdir();
                     }
-                    seenfile= new File(clientfolder,"seenfile.txt");
+                    File logfolder = new File(clientfolder,"Logs");
+                    if(!logfolder.exists())
+                    {
+                        logfolder.mkdir();
+                    }
+                    seenfile= new File(logfolder,"seenfile.txt");
                     if(!seenfile.exists())
                     {
                         seenfile.createNewFile();
                     }
-                    seenreq =  new File(clientfolder,"seenreq.txt");
+                    seenreq =  new File(logfolder,"seenreq.txt");
                     if(!seenreq.exists())
                     {
                         seenreq.createNewFile();
@@ -323,9 +328,13 @@ public class Client {
                 {
                     String [] filelist = clientfolder.list();
                     System.out.println("List of User's Local Files:");
+                    int idx=1;
                     for(int i=0;i<filelist.length;i++)
                     {
-                        System.out.println((i+1)+". "+filelist[i]);
+                        if(!filelist[i].equalsIgnoreCase("Logs"))
+                        {
+                            System.out.println((idx++) + ". " + filelist[i]);
+                        }
                     }
                 }
                 else if(input.equalsIgnoreCase("upload file"))
