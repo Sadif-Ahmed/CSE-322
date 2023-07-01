@@ -29,7 +29,6 @@ public class ClientWorker extends Thread  {
 
                         message = (String) in.readObject();
                         System.out.println("Broadcast Message: "+message);
-                        System.out.print("Client->");
                         String thread_input= (String) in.readObject();
                         if(thread_input.equalsIgnoreCase("reqbrd"))
                         {

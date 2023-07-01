@@ -6,7 +6,7 @@
 
 4.ls localfiles: Shows the local files in the user's device folder.
 
-5.req file: Request a file with a short description.
+5.req file: Request a file with a short description.It will be broadcasted to online users.
 
 6.view msgs: Show unseen messages of the client.
 
@@ -14,6 +14,8 @@
 
 8.get file: Download a file from any user's public folder or the current user's public and private folder.
 
-9.upload file: Upload a file to the server with acknowledgement from the server.
+9.upload file: Upload a file to the server with acknowledgement from the server.If a request is fulfilled,the request sender will be sent the message of the upload.
 
-10.logout: Log out.
+10.delete file: User can delete a file on his server directory.
+
+11.logout: Log out.

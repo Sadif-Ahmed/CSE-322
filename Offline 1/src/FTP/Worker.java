@@ -98,9 +98,9 @@ public class Worker extends Thread {
                         Server.write_hashmap(Server.filerequests,Server.reqlistpath);
                         Server.write_hashmap(Server.filereqsender,Server.reqsenderpath);
                         out.writeObject(message);
-                        for(String i : Server.activeusersockets.keySet())
+                        for(String i : Server.activeuserstreams.keySet())
                         {
-                            ObjectOutputStream tempout = new ObjectOutputStream(Server.activeusersockets.get(i).getOutputStream());
+                            ObjectOutputStream tempout = Server.activeuserstreams.get(i);
                             tempout.writeObject(message);
                             tempout.writeObject("reqbrd");
                             tempout.writeObject(filereqid);
@@ -285,7 +285,7 @@ public class Worker extends Thread {
                                     Server.write_hashmap(Server.fulfilledrequests,Server.fulfilledreqpath);
                                     Server.write_hashmap(Server.reqfulfiller,Server.reqfulfillerpath);
 
-                                    ObjectOutputStream tempout = new ObjectOutputStream(Server.activeusersockets.get(Server.filereqsender.get(Integer.parseInt(reqfileid))).getOutputStream());
+                                    ObjectOutputStream tempout = Server.activeuserstreams.get(Server.filereqsender.get(Integer.parseInt(reqfileid)));
                                     message = "Your request with id: "+reqfileid+" has been fulfilled by user: "+Server.reqfulfiller.get(Integer.parseInt(reqfileid))+" with the file: "+Server.fulfilledrequests.get(Integer.parseInt(reqfileid));
                                     tempout.writeObject(message);
                                     tempout.writeObject("filebrd");

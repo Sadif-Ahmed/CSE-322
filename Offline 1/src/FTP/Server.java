@@ -24,6 +24,8 @@ public class Server {
 
     public static  HashMap<String,Socket> activeusersockets = new HashMap<>();
 
+    public static HashMap<String,ObjectOutputStream> activeuserstreams = new HashMap<>();
+
     public static HashMap<Integer,String> fileuploadinfo = new HashMap<>();
     public static HashMap<Integer,String> fileuploaderinfo = new HashMap<>();
     public static HashMap<Integer, String> fulfilledrequests =  new HashMap<>();
@@ -222,6 +224,7 @@ public class Server {
                     active_users.add(username);
                 }
                 activeusersockets.put(username,bsocket);
+                activeuserstreams.put(username,new ObjectOutputStream(bsocket.getOutputStream()));
                 out.writeObject("Ok");
                 if(!users.contains(username))
                 {
