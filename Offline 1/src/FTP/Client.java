@@ -1,9 +1,6 @@
 package FTP;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.file.Files;
@@ -14,6 +11,43 @@ import java.util.Scanner;
 
 public class Client {
 
+    public static HashSet<String> seenreqids = new HashSet<>();
+    public static HashSet<String > seenfulids = new HashSet<>();
+
+    public  static File seenfile = new File("");
+    public static File seenreq = new File("");
+
+    public static void write_hashset(HashSet<String> temp,String filepath)
+    {
+        try {
+            FileWriter myWriter = new FileWriter(filepath);
+            for(String i : temp) {
+                myWriter.write(i);
+                myWriter.write("\n");
+            }
+            myWriter.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+    public static void read_hashset(HashSet<String> temp,String filepath)
+    {
+        try {
+            File myObj = new File(filepath);
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                if(!data.equalsIgnoreCase("")) {
+                    temp.add(data);
+                }
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Socket socket = new Socket("localhost", 6666);
         Socket bsocket = new Socket("localhost", 6666);
@@ -34,8 +68,7 @@ public class Client {
         String input = "";
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
-        HashSet<Integer> seenreqids = new HashSet<>();
-        HashSet<String > seenfulids = new HashSet<>();
+
 
         // open thread
         Thread worker = new ClientWorker(bsocket);
@@ -76,7 +109,18 @@ public class Client {
                     {
                         clientfolder.mkdir();
                     }
-
+                    seenfile= new File(clientfolder,"seenfile.txt");
+                    if(!seenfile.exists())
+                    {
+                        seenfile.createNewFile();
+                    }
+                    seenreq =  new File(clientfolder,"seenreq.txt");
+                    if(!seenreq.exists())
+                    {
+                        seenreq.createNewFile();
+                    }
+                    read_hashset(seenreqids,seenreq.getAbsolutePath());
+                    read_hashset(seenfulids,seenfile.getAbsolutePath());
 
                 }
                 else if (inputstring.equalsIgnoreCase("NotOk")) {
@@ -180,10 +224,10 @@ public class Client {
                     System.out.println("Unseen Messages: ");
                     for (int i: filerequests.keySet())
                     {
-                        if (!seenreqids.contains(i))
+                        if (!seenreqids.contains(Integer.toString(i)))
                         {
                             System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
-                            seenreqids.add(i);
+                            seenreqids.add(Integer.toString(i));
                         }
                         if(!seenfulids.contains(reqfullfiller.get(i)+" "+fulfilledreq.get(i)) && fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
                         {
@@ -192,6 +236,9 @@ public class Client {
 
                         }
                     }
+                    write_hashset(seenreqids,seenreq.getAbsolutePath());
+                    write_hashset(seenfulids,seenfile.getAbsolutePath());
+
                 }
                 else if(input.equalsIgnoreCase("view allmsgs"))
                 {
@@ -207,7 +254,7 @@ public class Client {
                     for (int i: filerequests.keySet())
                     {
                             System.out.println("Request id: "+ (i) +" Sender: "+filereqsender.get(i) + " File Description: " +filerequests.get(i));
-                            seenreqids.add(i);
+                            seenreqids.add(Integer.toString(i));
                         if(fulfilledreq.containsKey(i) && filereqsender.get(i).equalsIgnoreCase(uname))
                         {
                             System.out.println("The request with id: "+i+" has been fulfilled by "+reqfullfiller.get(i)+" with file name: "+fulfilledreq.get(i));
@@ -215,6 +262,9 @@ public class Client {
                         }
 
                     }
+                    write_hashset(seenreqids,seenreq.getAbsolutePath());
+                    write_hashset(seenfulids,seenfile.getAbsolutePath());
+
 
                 }
                 else if(input.equalsIgnoreCase("get file"))

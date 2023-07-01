@@ -89,9 +89,9 @@ public class Worker extends Thread {
                         String filedesc=(String) in.readObject();
                         String message = username + " has requested the file with description: " + filedesc;
                         System.out.println(message);
-                        Server.filereqsender.put(Server.filereqcount,username);
-                        Server.filerequests.put(Server.filereqcount,filedesc);
-                        Server.filereqcount++;
+                        int filereqid=Server.filereqcount++;
+                        Server.filereqsender.put(filereqid,username);
+                        Server.filerequests.put(filereqid,filedesc);
                         //System.out.println(Server.filerequests);
                         //System.out.println(Server.filereqsender);
                         Server.write_hashmap(Server.filerequests,Server.reqlistpath);
@@ -101,6 +101,8 @@ public class Worker extends Thread {
                         {
                             ObjectOutputStream tempout = new ObjectOutputStream(Server.activeusersockets.get(i).getOutputStream());
                             tempout.writeObject(message);
+                            tempout.writeObject("reqbrd");
+                            tempout.writeObject(filereqid);
                         }
 
                     }
@@ -272,6 +274,8 @@ public class Worker extends Thread {
                                     ObjectOutputStream tempout = new ObjectOutputStream(Server.activeusersockets.get(Server.filereqsender.get(Integer.parseInt(reqfileid))).getOutputStream());
                                     message = "Your request with id: "+reqfileid+" has been fulfilled by user: "+Server.reqfulfiller.get(Integer.parseInt(reqfileid))+" with the file: "+Server.fulfilledrequests.get(Integer.parseInt(reqfileid));
                                     tempout.writeObject(message);
+                                    tempout.writeObject("filebrd");
+                                    tempout.writeObject(Server.reqfulfiller.get(Integer.parseInt(reqfileid))+" "+Server.fulfilledrequests.get(Integer.parseInt(reqfileid)));
 
                                 }
                                 }
