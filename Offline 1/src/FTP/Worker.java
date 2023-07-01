@@ -2,6 +2,7 @@ package FTP;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -231,25 +232,30 @@ public class Worker extends Thread {
                             System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes assigned fileid "+Server.fileuploadcount);
                             int chunksize = (int) Math.floor(Math.random() * (Server.MAX_CHUNK_SIZE - Server.MIN_CHUNK_SIZE + 1) + Server.MIN_CHUNK_SIZE);
                             out.writeObject(chunksize);
-                            out.writeObject(Server.fileuploadcount);
-
+                            out.writeObject(fileid);
                             long numchunks = (long) in.readObject();
                             System.out.println("The file will be received in " + numchunks + " chunks");
+                            try
+                            {
                             byte [] data = new byte[(int)fsize];
                             Server.datamap.put(fileid,new byte[(int)fsize] );
                             byte[] holder = new byte[chunksize];
                             if(numchunks==1)
                             {
-
+                                socket.setSoTimeout(30000);
                                 data = (byte[]) in.readObject();
+                                socket.setSoTimeout(0);
                                 Server.datamap.put(fileid,data);
                                 out.writeObject("ok");
+
                             }
                             else
                             {
                                 for(int i=0;i<numchunks-1;i++)
                                 {
+                                    socket.setSoTimeout(30000);
                                     holder = (byte[]) in.readObject();
+                                    socket.setSoTimeout(0);
                                     out.writeObject("ok");
                                     for(int j=0;j<chunksize;j++)
                                     {
@@ -258,13 +264,22 @@ public class Worker extends Thread {
                                     Server.datamap.put(fileid,data);
 
                                 }
+                                socket.setSoTimeout(30000);
                                 holder = (byte[]) in.readObject();
+                                socket.setSoTimeout(0);
                                 for(long i=(numchunks-1)*chunksize,j=0;i<fsize;i++,j++)
                                 {
                                     data[(int) i]=holder[(int) j];
                                 }
                                 Server.datamap.put(fileid,data);
 
+                            }
+                            }
+                            catch (SocketTimeoutException e)
+                            {
+                                System.out.println("Timed out Exception.");
+                                Server.datamap.remove(fileid);
+                                break;
                             }
                             downfile.createNewFile();
                             Files.write(Paths.get(downfile.getAbsolutePath()), Server.datamap.get(fileid));
