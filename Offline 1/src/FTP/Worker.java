@@ -60,9 +60,11 @@ public class Worker extends Thread {
                     {
                         Server.active_users.remove(username);
                         Server.activeusersockets.remove(username);
+                        Server.activeuserstreams.remove(username);
                         System.out.println(username + " has logged out.");
                         out.writeObject("ok");
                         socket.close();
+                        bsocket.close();
                         break;
                     }
                     else if(receivedinput.equalsIgnoreCase("ls files"))
@@ -71,7 +73,6 @@ public class Worker extends Thread {
                         File Publicfiles = new File(workingDir,"Public");
                         out.writeObject(Privatefiles.list());
                         out.writeObject(Publicfiles.list());
-                        receivedinput = "";
                     } else if (receivedinput.equalsIgnoreCase("ls allfiles")) {
                         File parentdir = workingDir.getParentFile();
                         File tempdir;
@@ -277,9 +278,9 @@ public class Worker extends Thread {
                             }
                             catch (SocketTimeoutException e)
                             {
-                                System.out.println("Timed out Exception.");
+                                System.out.println("Upload Timed out Exception.");
                                 Server.datamap.remove(fileid);
-                                break;
+                                continue;
                             }
                             downfile.createNewFile();
                             Files.write(Paths.get(downfile.getAbsolutePath()), Server.datamap.get(fileid));
@@ -310,7 +311,7 @@ public class Worker extends Thread {
                                 }
                             else
                             {
-                                out.writeObject("Something Went Wrong.");
+                                out.writeObject("Something Went Wrong while uploading.");
                                 Server.datamap.remove(fileid);
                             }
                             }
@@ -390,9 +391,10 @@ public class Worker extends Thread {
                 }
                 catch (IOException |  ClassNotFoundException  e)
                 {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                     Server.active_users.remove(username);
                     Server.activeusersockets.remove(username);
+                    Server.activeuserstreams.remove(username);
                     System.out.println(username+" has logged out.");
                     if(receivedinput.equalsIgnoreCase("upload file"))
                     {
