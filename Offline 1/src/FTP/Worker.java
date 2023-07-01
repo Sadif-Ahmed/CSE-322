@@ -213,6 +213,20 @@ public class Worker extends Thread {
                         if (fsize<=Server.MAX_BUFFER_SIZE)
                         {
                             out.writeObject("ok");
+                            File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
+                            File mirrorfile ;
+                            if(privacy.equalsIgnoreCase("Public"))
+                            {
+                                mirrorfile = new File(workingDir.getAbsolutePath()+"/"+"Private",fname);
+                            }
+                            else
+                            {
+                                mirrorfile = new File(workingDir.getAbsolutePath()+"/"+"Public",fname);
+                            }
+                            if(!(downfile.exists() || mirrorfile.exists()))
+                            {
+                            out.writeObject("newfile");
+
                             fileid=Server.fileuploadcount++;
                             System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes assigned fileid "+Server.fileuploadcount);
                             int chunksize = (int) Math.floor(Math.random() * (Server.MAX_CHUNK_SIZE - Server.MIN_CHUNK_SIZE + 1) + Server.MIN_CHUNK_SIZE);
@@ -224,7 +238,6 @@ public class Worker extends Thread {
                             byte [] data = new byte[(int)fsize];
                             Server.datamap.put(fileid,new byte[(int)fsize] );
                             byte[] holder = new byte[chunksize];
-                            File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
                             if(numchunks==1)
                             {
 
@@ -285,7 +298,11 @@ public class Worker extends Thread {
                                 out.writeObject("Something Went Wrong.");
                                 Server.datamap.remove(fileid);
                             }
-
+                            }
+                            else
+                            {
+                                out.writeObject("duplicate");
+                            }
                         }
                         else
                         {

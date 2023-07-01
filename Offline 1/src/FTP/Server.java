@@ -125,66 +125,75 @@ public class Server {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
-       ServerSocket welcomeSocket = new ServerSocket(6666);
-//        Scanner tin = new Scanner(System.in);
-//        System.out.println("Enter the absolute path of src folder: ");
-//        srcpath=tin.nextLine();
-//
-//        File temp;
-//
-//        temp=new File(orignalPath);
-//        if(!temp.exists())
-//        {
-//            temp.mkdir();
-//        }
-//
-//        temp=new File(srcpath+"\\Lists");
-//        if(!temp.exists())
-//        {
-//            temp.mkdir();
-//        }
-//
-//        temp=new File(userfilepath);
-//        if(!temp.exists())
-//        {
-//            temp.createNewFile();
-//        }
-//        temp=new File(filelistpath);
-//        if(!temp.exists())
-//        {
-//            temp.createNewFile();
-//        }
-//        temp=new File(reqlistpath);
-//        if(!temp.exists())
-//        {
-//            temp.createNewFile();
-//        }
-//        temp=new File(fulfilledreqpath);
-//        if(!temp.exists())
-//        {
-//            temp.createNewFile();
-//        }
-//        temp=new File(reqfulfillerpath);
-//        if(!temp.exists())
-//        {
-//            temp.createNewFile();
-//        }
-//        temp=new File(reqsenderpath);
-//        if(!temp.exists())
-//        {
-//            temp.createNewFile();
-//        }
-//        temp=new File(uploader_listpath);
-//        if(!temp.exists())
-//        {
-//            temp.createNewFile();
-//        }
-//        System.out.println("Enter the Maximum Buffer Size:");
-//        Server.MAX_BUFFER_SIZE=Integer.parseInt(tin.nextLine());
-//        System.out.println("Enter the Maximum Chunk Size:");
-//        Server.MAX_CHUNK_SIZE=Integer.parseInt(tin.nextLine());
-//        System.out.println("Enter the Minimum Chunk Size:");
-//        Server.MIN_CHUNK_SIZE=Integer.parseInt(tin.nextLine());
+        ServerSocket welcomeSocket = new ServerSocket(6666);
+        Scanner tin = new Scanner(System.in);
+        System.out.println("Enter the absolute path of src folder: ");
+        srcpath=tin.nextLine();
+
+        File temp;
+
+        temp=new File(orignalPath);
+        if(!temp.exists())
+        {
+            temp.mkdir();
+        }
+
+        temp=new File(srcpath+"\\Lists");
+        if(!temp.exists())
+        {
+            temp.mkdir();
+        }
+
+        temp=new File(userfilepath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(filelistpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(reqlistpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(fulfilledreqpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(reqfulfillerpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(reqsenderpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        temp=new File(uploader_listpath);
+        if(!temp.exists())
+        {
+            temp.createNewFile();
+        }
+        System.out.println("Enter the Maximum Buffer Size with space separated unit(GB/MB):");
+        String input = tin.nextLine();
+        String [] str =input.split(" ",2);
+        if(str[1].equalsIgnoreCase("mb"))
+        {
+            Server.MAX_BUFFER_SIZE=Integer.parseInt(str[0])*1000000;
+        }
+        else if(str[1].equalsIgnoreCase("gb"))
+        {
+            Server.MAX_BUFFER_SIZE=Integer.parseInt(str[0])*1000000000;
+        }
+        System.out.println("Enter the Maximum Chunk Size(in bytes):");
+        Server.MAX_CHUNK_SIZE=Integer.parseInt(tin.nextLine());
+        System.out.println("Enter the Minimum Chunk Size(in bytes):");
+        Server.MIN_CHUNK_SIZE=Integer.parseInt(tin.nextLine());
 
         Server.read_user_list(users, userfilepath);
         Server.read_hashmap(Server.fileuploadinfo,filelistpath);

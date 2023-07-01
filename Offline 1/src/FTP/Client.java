@@ -75,8 +75,8 @@ public class Client {
         worker.start();
 
 
-//        System.out.println("Enter the absolute path of src: ");
-//        srcpath= tin.nextLine();
+        System.out.println("Enter the absolute path of src: ");
+        srcpath= tin.nextLine();
 
 
         String filepath = srcpath+"\\Client Files";
@@ -390,80 +390,74 @@ public class Client {
                         String mes= (String) in.readObject();
                         if(mes.equalsIgnoreCase("ok"))
                         {
-                            int chunksize = (int) in.readObject();
-                            int fileid = (int) in.readObject();
-                            System.out.println("the File Id is : " + fileid);
-                            System.out.println("The Server allocated chunk size is: " + chunksize);
+                            String dup=(String) in.readObject();
+                            if(dup.equalsIgnoreCase("newfile")) {
 
-                            long num_of_chunks = (upfile.length() / chunksize) + 1 ;
-                            out.writeObject(num_of_chunks);
-                            byte [] data = Files.readAllBytes(upfile.toPath());
-                            byte[] holder = new byte[chunksize];
-                            int flag=0;
+                                int chunksize = (int) in.readObject();
+                                int fileid = (int) in.readObject();
+                                System.out.println("the File Id is : " + fileid);
+                                System.out.println("The Server allocated chunk size is: " + chunksize);
 
-                            try
-                            {
+                                long num_of_chunks = (upfile.length() / chunksize) + 1;
+                                out.writeObject(num_of_chunks);
+                                byte[] data = Files.readAllBytes(upfile.toPath());
+                                byte[] holder = new byte[chunksize];
+                                int flag = 0;
 
-                                if(num_of_chunks==1)
-                                {
-                                    out.writeObject(data);
-                                    socket.setSoTimeout(30000);
-                                    String conf=(String) in.readObject();
-                                    //System.out.println(conf + " 1");
-                                    socket.setSoTimeout(0);
-                                }
-                                else
-                                {
-                                    for(int i=0;i<num_of_chunks-1;i++)
-                                    {
-                                        if(flag==0)
-                                        {
-                                            for(int j=0;j<chunksize;j++)
-                                            {
-                                                holder[j]=data[i*chunksize+j];
+                                try {
+
+                                    if (num_of_chunks == 1) {
+                                        out.writeObject(data);
+                                        socket.setSoTimeout(30000);
+                                        String conf = (String) in.readObject();
+                                        //System.out.println(conf + " 1");
+                                        socket.setSoTimeout(0);
+                                    } else {
+                                        for (int i = 0; i < num_of_chunks - 1; i++) {
+                                            if (flag == 0) {
+                                                for (int j = 0; j < chunksize; j++) {
+                                                    holder[j] = data[i * chunksize + j];
+                                                }
+                                                out.writeObject(holder);
+                                                socket.setSoTimeout(30000);
+                                                String conf = (String) in.readObject();
+                                                if (!conf.equalsIgnoreCase("ok")) {
+                                                    flag = 1;
+                                                }
+                                                //System.out.println(conf+"  "+(i+1));
+                                                socket.setSoTimeout(0);
+                                                holder = new byte[chunksize];
+                                            }
+                                        }
+                                        if (flag == 0) {
+
+                                            for (long i = (num_of_chunks - 1) * chunksize, j = 0; i < upfile.length(); i++, j++) {
+                                                holder[(int) j] = data[(int) i];
                                             }
                                             out.writeObject(holder);
-                                            socket.setSoTimeout(30000);
-                                            String conf=(String) in.readObject();
-                                            if(!conf.equalsIgnoreCase("ok"))
-                                            {
-                                                flag=1;
-                                            }
-                                            //System.out.println(conf+"  "+(i+1));
-                                            socket.setSoTimeout(0);
-                                            holder = new byte[chunksize];
-                                        }
-                                    }
-                                    if(flag==0)
-                                    {
 
-                                        for(long i=(num_of_chunks-1)*chunksize,j=0;i<upfile.length();i++,j++)
-                                        {
-                                            holder[(int) j]=data[(int) i];
                                         }
-                                        out.writeObject(holder);
 
                                     }
+
+
+                                } catch (SocketTimeoutException e) {
+                                    flag = 1;
+                                    System.out.println("Upload Interrupted.Time out Exception.");
+                                    socket.setSoTimeout(0);
                                 }
-
-                            }
-                            catch (SocketTimeoutException e)
-                            {
-                                flag=1;
-                                System.out.println("Upload Interrupted.Time out Exception.");
-                                socket.setSoTimeout(0);
-                            }
-                            if(flag==0)
-                            {
-                                out.writeObject("File Upload Complete");
-                                String message= (String) in.readObject();
-                                System.out.println(message);
-                                socket.setSoTimeout(0);
-                            }
-                            if(flag==1)
-                            {
-                                System.out.println("Upload Interrupted.");
-                                socket.setSoTimeout(0);
+                                if (flag == 0) {
+                                    out.writeObject("File Upload Complete");
+                                    String message = (String) in.readObject();
+                                    System.out.println(message);
+                                    socket.setSoTimeout(0);
+                                }
+                                if (flag == 1) {
+                                    System.out.println("Upload Interrupted.");
+                                    socket.setSoTimeout(0);
+                                }
+                            } else if (dup.equalsIgnoreCase("duplicate")) {
+                                System.out.println("A File with the same name already exists in the Server.");
                             }
 
 
