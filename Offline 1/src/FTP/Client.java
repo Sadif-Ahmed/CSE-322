@@ -62,10 +62,11 @@ public class Client {
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
         Scanner tin = new Scanner(System.in);
-        String srcpath="E:\\CSE-322\\Offline 1\\src";
+        String srcpath;
         int logflag = 0;
         String uname = "";
         String input = "";
+        int flag = 0;
         HashSet<String> users = new HashSet<String>();
         HashSet<String> active_users = new HashSet<String>();
 
@@ -144,6 +145,11 @@ public class Client {
                     bsocket.close();
                     worker.interrupt();
                     break;
+                }
+                if(flag==1)
+                {
+                    String trash = (String) in.readObject();
+                    flag=0;
                 }
 
                 System.out.print("Client -> ");
@@ -402,7 +408,7 @@ public class Client {
                                 out.writeObject(num_of_chunks);
                                 byte[] data = Files.readAllBytes(upfile.toPath());
                                 byte[] holder = new byte[chunksize];
-                                int flag = 0;
+                                flag = 0;
 
                                 try {
 
