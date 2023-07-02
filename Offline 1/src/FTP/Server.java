@@ -9,10 +9,10 @@ import java.util.Scanner;
 
 public class Server {
 
-    public static String srcpath = "E:\\CSE-322\\Offline 1\\src";
+    public static String srcpath;
     public static HashSet<String> users=new HashSet<>();
     public static HashSet<String> active_users=new HashSet<>();
-    public static String orignalPath = srcpath+"\\Server Files";
+    public static String orignalPath;
     public static File workingDir ;
 
 
@@ -44,17 +44,17 @@ public class Server {
 
     public static HashMap<Integer,byte[]> datamap = new HashMap<>(); ;
 
-    public static String filelistpath = srcpath+"\\Lists\\file_list.txt";
-    public static String uploader_listpath= srcpath+"\\Lists\\uploader_list.txt";
+    public static String filelistpath;
+    public static String uploader_listpath;
 
-    public static String reqlistpath = srcpath+"\\Lists\\req_list.txt";
-    public static String reqsenderpath = srcpath+"\\Lists\\req_sender.txt";
+    public static String reqlistpath;
+    public static String reqsenderpath;
 
-    public static String fulfilledreqpath = srcpath+"\\Lists\\fulfilled_req.txt";
+    public static String fulfilledreqpath;
 
-    public static String reqfulfillerpath = srcpath+"\\Lists\\req_fulfiller.txt";
+    public static String reqfulfillerpath;
 
-    public static String userfilepath = srcpath+"\\Lists\\user_list.txt";
+    public static String userfilepath;
    public static void write_user_list(HashSet<String> temp,String filepath)
     {
         try {
@@ -131,6 +131,15 @@ public class Server {
         Scanner tin = new Scanner(System.in);
         System.out.println("Enter the absolute path of src folder: ");
         srcpath=tin.nextLine();
+
+        orignalPath = srcpath+"\\Server Files";
+        filelistpath = srcpath+"\\Lists\\file_list.txt";
+        uploader_listpath= srcpath+"\\Lists\\uploader_list.txt";
+        reqlistpath = srcpath+"\\Lists\\req_list.txt";
+        reqsenderpath = srcpath+"\\Lists\\req_sender.txt";
+        fulfilledreqpath = srcpath+"\\Lists\\fulfilled_req.txt";
+        reqfulfillerpath = srcpath+"\\Lists\\req_fulfiller.txt";
+        userfilepath = srcpath+"\\Lists\\user_list.txt";
 
         File temp;
 
