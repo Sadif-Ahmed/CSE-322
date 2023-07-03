@@ -449,7 +449,7 @@ public class Client {
 
                                 } catch (SocketTimeoutException e) {
                                     flag = 1;
-                                    System.out.println("Upload Interrupted.Time out Exception.");
+                                    System.out.println("Time out Exception.");
                                     socket.setSoTimeout(0);
                                 }
                                 if (flag == 0) {

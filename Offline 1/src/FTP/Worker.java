@@ -17,6 +17,8 @@ public class Worker extends Thread {
     File workingDir;
     int fileid;
 
+    int receivedchunksize=0;
+
 
     public Worker(Socket socket,ObjectInputStream in,ObjectOutputStream out,String username,File workingDir,Socket bsocket)
     {
@@ -214,7 +216,7 @@ public class Worker extends Thread {
                         long fsize = (long) in.readObject();
                         if ((Server.CURR_BUFFER_SIZE+fsize)<=Server.MAX_BUFFER_SIZE)
                         {
-                            Server.CURR_BUFFER_SIZE+=fsize;
+
                             out.writeObject("ok");
                             File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
                             File mirrorfile ;
@@ -229,7 +231,7 @@ public class Worker extends Thread {
                             if(!(downfile.exists() || mirrorfile.exists()))
                             {
                             out.writeObject("newfile");
-
+                            receivedchunksize=0;
                             fileid=Server.fileuploadcount++;
                             System.out.println(username + " is trying to upload a " + privacy + " file named " + fname + " and of size " + fsize+" bytes assigned fileid "+Server.fileuploadcount);
                             int chunksize = (int) Math.floor(Math.random() * (Server.MAX_CHUNK_SIZE - Server.MIN_CHUNK_SIZE + 1) + Server.MIN_CHUNK_SIZE);
@@ -248,6 +250,8 @@ public class Worker extends Thread {
                                 data = (byte[]) in.readObject();
                                 socket.setSoTimeout(0);
                                 Server.datamap.put(fileid,data);
+                                Server.CURR_BUFFER_SIZE+=fsize;
+                                receivedchunksize+=fsize;
                                 out.writeObject("ok");
 
                             }
@@ -264,6 +268,8 @@ public class Worker extends Thread {
                                         data[i*chunksize+j]=holder[j];
                                     }
                                     Server.datamap.put(fileid,data);
+                                    Server.CURR_BUFFER_SIZE+=chunksize;
+                                    receivedchunksize+=chunksize;
 
                                 }
                                 socket.setSoTimeout(30000);
@@ -274,6 +280,8 @@ public class Worker extends Thread {
                                     data[(int) i]=holder[(int) j];
                                 }
                                 Server.datamap.put(fileid,data);
+                                Server.CURR_BUFFER_SIZE+=chunksize;
+                                receivedchunksize+=chunksize;
 
                             }
                             }
@@ -281,7 +289,7 @@ public class Worker extends Thread {
                             {
                                 System.out.println("Upload Timed out Exception.");
                                 Server.datamap.remove(fileid);
-                                Server.CURR_BUFFER_SIZE-=fsize;
+                                Server.CURR_BUFFER_SIZE-=receivedchunksize;
                                 continue;
                             }
                             downfile.createNewFile();
@@ -317,13 +325,12 @@ public class Worker extends Thread {
                             {
                                 out.writeObject("Something Went Wrong while uploading.");
                                 Server.datamap.remove(fileid);
-                                Server.CURR_BUFFER_SIZE-=fsize;
+                                Server.CURR_BUFFER_SIZE-=receivedchunksize;
                             }
                             }
                             else
                             {
                                 out.writeObject("duplicate");
-                                Server.CURR_BUFFER_SIZE-=fsize;
                             }
                         }
                         else
