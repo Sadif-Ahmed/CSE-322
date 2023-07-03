@@ -212,8 +212,9 @@ public class Worker extends Thread {
                         String fname = (String) in.readObject();
                         String privacy = (String) in.readObject();
                         long fsize = (long) in.readObject();
-                        if (fsize<=Server.MAX_BUFFER_SIZE)
+                        if ((Server.CURR_BUFFER_SIZE+fsize)<=Server.MAX_BUFFER_SIZE)
                         {
+                            Server.CURR_BUFFER_SIZE+=fsize;
                             out.writeObject("ok");
                             File downfile = new File(workingDir.getAbsolutePath()+"/"+privacy,fname);
                             File mirrorfile ;
@@ -280,6 +281,7 @@ public class Worker extends Thread {
                             {
                                 System.out.println("Upload Timed out Exception.");
                                 Server.datamap.remove(fileid);
+                                Server.CURR_BUFFER_SIZE-=fsize;
                                 continue;
                             }
                             downfile.createNewFile();
@@ -308,16 +310,20 @@ public class Worker extends Thread {
                                     tempout.writeObject(Server.reqfulfiller.get(Integer.parseInt(reqfileid))+" "+Server.fulfilledrequests.get(Integer.parseInt(reqfileid)));
 
                                 }
+                                Server.datamap.remove(fileid);
+                                Server.CURR_BUFFER_SIZE-=fsize;
                                 }
                             else
                             {
                                 out.writeObject("Something Went Wrong while uploading.");
                                 Server.datamap.remove(fileid);
+                                Server.CURR_BUFFER_SIZE-=fsize;
                             }
                             }
                             else
                             {
                                 out.writeObject("duplicate");
+                                Server.CURR_BUFFER_SIZE-=fsize;
                             }
                         }
                         else

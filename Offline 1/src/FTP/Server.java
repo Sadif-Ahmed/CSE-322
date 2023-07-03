@@ -38,6 +38,8 @@ public class Server {
 
     public static int MAX_BUFFER_SIZE= 1073741824;
 
+    public static int CURR_BUFFER_SIZE=0;
+
     public static int MAX_CHUNK_SIZE=5000;
 
     public static int MIN_CHUNK_SIZE=1000;
