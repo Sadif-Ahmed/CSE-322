@@ -78,80 +78,26 @@ void througput_calculation()
     recent_time=time;
     Simulator::Schedule(MilliSeconds(500), &througput_calculation);
 }
-void plot(std::string filename)
-{
-std::string graphicsFileName        = "scratch/"+filename + ".png";
-std::string plotFileName            = "scratch/"+filename + ".plt";
-std::string plotTitle               = "2-D Plot";
-std::string dataTitle               = "2-D Data";
-
-// Instantiate the plot and set its title.
-Gnuplot plot(graphicsFileName);
-plot.SetTitle(plotTitle);
-
-// Make the graphics file, which the plot file will create when it
-// is used with Gnuplot, be a PNG file.
-plot.SetTerminal("png");
-
-// Set the labels for each axis.
-plot.SetLegend("X Values", "Y Values");
-
-// Set the range for the x axis.
-plot.AppendExtra("set xrange [-6:+6]");
-
-// Instantiate the dataset, set its title, and make the points be
-// plotted along with connecting lines.
-Gnuplot2dDataset dataset;
-dataset.SetTitle(dataTitle);
-dataset.SetStyle(Gnuplot2dDataset::LINES_POINTS);
-double x;
-double y;
-
-// Create the 2-D dataset.
-for (x = -5.0; x <= +5.0; x += 1.0)
-  {
-    // Calculate the 2-D curve
-    //
-    //            2
-    //     y  =  x   .
-    //
-    y = x * x;
-
-    // Add this point.
-    dataset.Add(x, y);
-  }
-
-// Add the dataset to the plot.
-plot.AddDataset(dataset);
-
-// Open the plot file.
-std::ofstream plotFile(plotFileName.c_str());
-
-// Write the plot file.
-plot.GenerateOutput(plotFile);
 
 
-// Close the plot file.
-//plotFile.close();
-}
-class mobile_wifi
+class static_wifi
 {
     public:
-    uint32_t nWifi = 20;
-    uint32_t flow = 10;
-    uint32_t packets_per_second = 100; 
-    uint32_t packet_size = 1024; 
-    uint64_t num_sent_packet=0;
-    uint64_t num_received_packet=0;
-    uint32_t speed=5;
+    uint32_t nWifi;
+    uint32_t flow;
+    uint32_t packets_per_second;
+    uint32_t coverage_area;
+    uint32_t tx_range; 
+    uint32_t packet_size; 
           
-    mobile_wifi(uint32_t nWifi,uint32_t flow,uint32_t packets_per_second,uint32_t packet_size,uint32_t speed)
+    static_wifi(uint32_t nWifi,uint32_t flow,uint32_t packets_per_second,uint32_t coverage_area,uint32_t tx_range,uint32_t packet_size)
     {
         this->nWifi=nWifi;
         this->flow=flow;
         this->packets_per_second=packets_per_second;
+        this->coverage_area=coverage_area;
+        this->tx_range=tx_range;
         this->packet_size=packet_size;
-        this->speed=speed;
     }
     void setup_topology_generate_flow()
     {
@@ -169,22 +115,22 @@ class mobile_wifi
     p2pDevices = pointToPoint.Install(p2pNodes);
 
     NodeContainer sender_wifiStaNodes;
-    sender_wifiStaNodes.Create((nWifi-2)/2);
+    sender_wifiStaNodes.Create((nWifi)/2);
     NodeContainer sender_wifiApNode = p2pNodes.Get(0);
 
     NodeContainer receiver_wifiStaNodes;
-    receiver_wifiStaNodes.Create((nWifi-2)/2);
+    receiver_wifiStaNodes.Create((nWifi)/2);
     NodeContainer receiver_wifiApNode = p2pNodes.Get(1);
 
     // Physical Layer
     // YANS model - Yet Another Network Simulator
     YansWifiChannelHelper sender_channel = YansWifiChannelHelper::Default();
-    sender_channel.AddPropagationLoss("ns3::RangePropagationLossModel");
+    sender_channel.AddPropagationLoss("ns3::RangePropagationLossModel", "MaxRange", ns3::DoubleValue(coverage_area * tx_range));
     YansWifiPhyHelper sender_phy;
     sender_phy.SetChannel(sender_channel.Create()); // share the same wireless medium 
 
     YansWifiChannelHelper receiver_channel = YansWifiChannelHelper::Default();
-    receiver_channel.AddPropagationLoss("ns3::RangePropagationLossModel");
+    receiver_channel.AddPropagationLoss("ns3::RangePropagationLossModel", "MaxRange", ns3::DoubleValue(coverage_area * tx_range));
     YansWifiPhyHelper receiver_phy;
     receiver_phy.SetChannel(receiver_channel.Create());
 
@@ -224,25 +170,17 @@ class mobile_wifi
     MobilityHelper mobility;
 
     mobility.SetPositionAllocator ("ns3::RandomRectanglePositionAllocator",
-    "X", StringValue("ns3::UniformRandomVariable[Min=0.0|Max="+std::to_string((nWifi)/2)+"]"),
-    "Y", StringValue("ns3::UniformRandomVariable[Min=0.0|Max="+std::to_string((nWifi)/2)+"]"));
-
-    mobility.SetMobilityModel("ns3::RandomWalk2dMobilityModel",
-                              "Bounds",
-                              RectangleValue(Rectangle(0, ((nWifi)/2), 0, ((nWifi)/2))),
-                              "Speed",
-                              StringValue("ns3::ConstantRandomVariable[Constant=" + std::to_string(speed)+"]"));
+    "X", StringValue("ns3::UniformRandomVariable[Min=0.0|Max="+std::to_string(nWifi/10)+"]"),
+    "Y", StringValue("ns3::UniformRandomVariable[Min=0.0|Max="+std::to_string(nWifi/10)+"]"));
     
-    mobility.Install(sender_wifiStaNodes);
-    mobility.Install(receiver_wifiStaNodes);
-
     mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 
-    mobility.Install(sender_wifiApNode);
-    mobility.Install(receiver_wifiApNode);
-   
-
     
+    mobility.Install(sender_wifiStaNodes);
+    mobility.Install(sender_wifiApNode);
+
+    mobility.Install(receiver_wifiStaNodes);
+    mobility.Install(receiver_wifiApNode);
 
     // To get a mobility model and print their position
     // Ptr<MobilityModel> mob = wifiStaNodes.Get(1)->GetObject<MobilityModel>();
@@ -276,11 +214,11 @@ class mobile_wifi
     /* Populate routing table */
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
     uint32_t i;
-    for(i=1;i<=flow;i++)
+    for(i=0;i<flow;i++)
     {
         OnOffHelper sender_helper("ns3::TcpSocketFactory", 
             (InetSocketAddress(
-                receiver_staInterfaces.GetAddress((i)%((nWifi-2)/2)), 9)));
+                receiver_staInterfaces.GetAddress((i)%((nWifi)/2)), 9)));
     sender_helper.SetAttribute("PacketSize", 
         UintegerValue(packet_size));
     sender_helper.SetAttribute("OnTime", StringValue(
@@ -289,10 +227,10 @@ class mobile_wifi
         "ns3::ConstantRandomVariable[Constant=0]"));
     sender_helper.SetAttribute("DataRate", DataRateValue(DataRate(packets_per_second*packet_size)));
 
-    sender_apps.Add(sender_helper.Install(sender_wifiStaNodes.Get((i)%((nWifi-2)/2))));
+    sender_apps.Add(sender_helper.Install(sender_wifiStaNodes.Get((i)%((nWifi)/2))));
     }
     
-    for(i=0;i<(nWifi-2)/2;i++)
+    for(i=0;i<(nWifi)/2;i++)
     {
         PacketSinkHelper reciever_helper("ns3::TcpSocketFactory", ns3::InetSocketAddress(ns3::Ipv4Address::GetAny(), 9));
         receiver_apps.Add(reciever_helper.Install(receiver_wifiStaNodes.Get(i)));
@@ -307,31 +245,34 @@ class mobile_wifi
 int
 main(int argc, char* argv[])
 {
-    uint32_t nWifis[5] = {20,40,60,80,100};
-    uint32_t flows[5] = {10,20,30,40,50};
-    uint32_t packets_per_seconds[5] = {100,200,300,400,500};
-    uint32_t speeds[5] = {5,10,15,20,25};
-    uint32_t packet_size = 1024;           /* Transport layer payload size in bytes. */
-    double simulationTime = 10;            /* Simulation time in seconds. */
-
     uint32_t nWifi = 20;
     uint32_t flow = 10;
     uint32_t packets_per_second = 100;
-    uint32_t speed = 5;
+    uint32_t coverage_area = 1;
+    uint32_t tx_range = 5; 
+    uint32_t packet_size = 1024;           /* Transport layer payload size in bytes. */
+    double simulationTime = 10;            /* Simulation time in seconds. */
+    uint32_t param=1;
 
-    
     CommandLine cmd(__FILE__);
     cmd.AddValue("nWifi", "Number of wifi STA devices", nWifi);
     cmd.AddValue("flow", "Number of flows", flow);
     cmd.AddValue("packets_per_second", "Number of packets per second", packets_per_second);
-    cmd.AddValue("speed", "Node Speeds", speed);
+    cmd.AddValue("coverage_area", "Coverage area", coverage_area);
+    cmd.AddValue("param", "Parametre", param);
     cmd.Parse(argc, argv);
-
+    
     //LogComponentEnable("OnOffApplication", ns3::LOG_LEVEL_INFO);
     //LogComponentEnable("PacketSink", ns3::LOG_LEVEL_INFO);
+    NS_LOG_UNCOND("Simulation Parametres:");
+    NS_LOG_UNCOND("Number of wifi devices: "<<nWifi);
+    NS_LOG_UNCOND("Number of flows: " << flow);
+    NS_LOG_UNCOND("Number of packets per second: "<<packets_per_second);
+    NS_LOG_UNCOND("Coverage area: "<<coverage_area);
 
-    mobile_wifi *topology = new mobile_wifi(nWifi,flow,packets_per_second,packet_size,speed);
+    static_wifi *topology = new static_wifi(nWifi,flow,packets_per_second,coverage_area,tx_range,packet_size);
     topology->setup_topology_generate_flow();
+    
 
     uint32_t i;
 
@@ -352,9 +293,9 @@ main(int argc, char* argv[])
     Simulator::Schedule(Seconds(1.5), &througput_calculation);
     Simulator::Stop(Seconds(simulationTime+1));
     ns3::Simulator::Run();
-    //NS_LOG_UNCOND(num_sent_packet);
-    //NS_LOG_UNCOND(num_received_packet);
-    //plot("test");
+    // NS_LOG_UNCOND(num_sent_packet);
+    // NS_LOG_UNCOND(num_received_packet);
+    
     double final_time = Simulator::Now().ToDouble(Time::S);
     throughput = (num_received_bits)/final_time /1e6 / 0.5;
     std::string msg ="Average Throughput : " + std::to_string(throughput);
@@ -362,6 +303,40 @@ main(int argc, char* argv[])
     packet_delivery_ratio = (num_received_packet)/(num_sent_packet*1.0);
     msg = "Average Packet Delivery Ratio : "+ std::to_string(packet_delivery_ratio); 
     NS_LOG_UNCOND(msg);
+    if(param == 1)
+    {
+        std::cout << nWifi << "\t" << throughput  << std::endl;
+    }
+    else if(param == 2)
+    {
+        std::cout << nWifi << "\t" << packet_delivery_ratio  << std::endl;
+    }
+    else if(param == 3)
+    {
+        std::cout << flow << "\t" << throughput  << std::endl;
+    }
+    else if(param == 4)
+    {
+        std::cout << flow << "\t" << packet_delivery_ratio  << std::endl;
+    }
+    else if(param == 5)
+    {
+        std::cout << packets_per_second << "\t" << throughput  << std::endl;
+    }
+    else if(param == 6)
+    {
+        std::cout << packets_per_second << "\t" << packet_delivery_ratio  << std::endl;
+    }
+    else if(param == 7)
+    {
+        std::cout << coverage_area*tx_range << "\t" << throughput  << std::endl;
+    }
+    else if(param == 8)
+    {
+        std::cout << coverage_area*tx_range << "\t" << packet_delivery_ratio  << std::endl;
+    }
+    
+
     ns3::Simulator::Destroy();
     return 0;
 }
