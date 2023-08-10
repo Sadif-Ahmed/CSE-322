@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/stdlib_pch_exec.dir/build-support/empty-main.cc.o -o ns3-dev-stdlib_pch_exec-debug   -L/home/fallen/Desktop/CSE-322/ns-3-dev/build/lib 
