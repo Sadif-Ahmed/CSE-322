@@ -67,6 +67,5 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp"
-    },
-    "cmake.sourceDirectory": "/home/fallen/Desktop/CSE-322/ns-3-dev"
+    }
 }

@@ -1,2 +1,0 @@
-/usr/bin/ar qc /home/fallen/Desktop/CSE-322/ns-3-dev/build/lib/libscratch-nested-subdir-lib.a CMakeFiles/scratch-nested-subdir-lib.dir/lib/scratch-nested-subdir-library-source.cc.o
-/usr/bin/ranlib /home/fallen/Desktop/CSE-322/ns-3-dev/build/lib/libscratch-nested-subdir-lib.a
