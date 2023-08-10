@@ -25,7 +25,7 @@ set terminal png
 set output "scratch/staticgraphs/nodes_vs_deliveryratio.png"
 set xlabel "Number of Nodes"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
+set yrange [0.50:1.25]
 plot "scratch/staticgraphs/node_delivery.dat" using 1:2 title 'NodeCount VS DeliveryRatio' with linespoints
 EOFMarker
 #Varying Number of Flows
@@ -41,7 +41,7 @@ set terminal png
 set output "scratch/staticgraphs/flow_vs_throughput.png"
 set xlabel "Number of Flows"
 set ylabel "Throughput(Mbit/s)"
-set yrange [0:20]
+set yrange [0:10]
 plot "scratch/staticgraphs/flow_throughput.dat" using 1:2 title 'FlowCount VS Throughput' with linespoints
 EOFMarker
 gnuplot -persist <<-EOFMarker
@@ -49,7 +49,7 @@ set terminal png
 set output "scratch/staticgraphs/flow_vs_deliveryratio.png"
 set xlabel "Number of Flows"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
+set yrange [0.50:1.25]
 plot "scratch/staticgraphs/flow_delivery.dat" using 1:2 title 'FlowCount VS DeliveryRatio' with linespoints
 EOFMarker
 #Varying Number of Packets Per Second
@@ -65,7 +65,7 @@ set terminal png
 set output "scratch/staticgraphs/packets_vs_throughput.png"
 set xlabel "Number of Packets per Second"
 set ylabel "Throughput(Mbit/s)"
-set yrange [0:20]
+set yrange [0:10]
 plot "scratch/staticgraphs/packet_throughput.dat" using 1:2 title 'PacketperSecondCount VS Throughput' with linespoints
 EOFMarker
 gnuplot -persist <<-EOFMarker
@@ -73,7 +73,7 @@ set terminal png
 set output "scratch/staticgraphs/packet_vs_deliveryratio.png"
 set xlabel "Number of Packets per Second"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
+set yrange [0.50:1.25]
 plot "scratch/staticgraphs/packet_delivery.dat" using 1:2 title 'PacketperSecondCount VS DeliveryRatio' with linespoints
 EOFMarker
 #Varying Coverage Area
@@ -89,7 +89,7 @@ set terminal png
 set output "scratch/staticgraphs/coverage_vs_throughput.png"
 set xlabel "Coverage Area"
 set ylabel "Throughput(Mbit/s)"
-set yrange [0:20]
+set yrange [0:10]
 plot "scratch/staticgraphs/coverage_throughput.dat" using 1:2 title 'Coverage Area VS Throughput' with linespoints
 EOFMarker
 gnuplot -persist <<-EOFMarker
@@ -97,6 +97,6 @@ set terminal png
 set output "scratch/staticgraphs/coverage_vs_deliveryratio.png"
 set xlabel "Coverage Area"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
+set yrange [0.50:1.25]
 plot "scratch/staticgraphs/coverage_delivery.dat" using 1:2 title 'Coverage Area VS DeliveryRatio' with linespoints
 EOFMarker

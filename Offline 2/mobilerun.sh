@@ -25,7 +25,7 @@ set terminal png
 set output "scratch/mobilegraphs/nodes_vs_deliveryratio.png"
 set xlabel "Number of Nodes"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
+set yrange [0.50:1.25]
 plot "scratch/mobilegraphs/node_delivery.dat" using 1:2 title 'NodeCount VS DeliveryRatio' with linespoints
 EOFMarker
 #Varying Number of Flows
@@ -41,7 +41,7 @@ set terminal png
 set output "scratch/mobilegraphs/flow_vs_throughput.png"
 set xlabel "Number of Flows"
 set ylabel "Throughput(Mbit/s)"
-set yrange [0:20]
+set yrange [0:10]
 plot "scratch/mobilegraphs/flow_throughput.dat" using 1:2 title 'FlowCount VS Throughput' with linespoints
 EOFMarker
 gnuplot -persist <<-EOFMarker
@@ -49,7 +49,7 @@ set terminal png
 set output "scratch/mobilegraphs/flow_vs_deliveryratio.png"
 set xlabel "Number of Flows"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
+set yrange [0.50:1.25]
 plot "scratch/mobilegraphs/flow_delivery.dat" using 1:2 title 'FlowCount VS DeliveryRatio' with linespoints
 EOFMarker
 #Varying Number of Packets Per Second
@@ -65,7 +65,7 @@ set terminal png
 set output "scratch/mobilegraphs/packets_vs_throughput.png"
 set xlabel "Number of Packets per Second"
 set ylabel "Throughput(Mbit/s)"
-set yrange [0:20]
+set yrange [0:10]
 plot "scratch/mobilegraphs/packet_throughput.dat" using 1:2 title 'PacketperSecondCount VS Throughput' with linespoints
 EOFMarker
 gnuplot -persist <<-EOFMarker
@@ -73,11 +73,11 @@ set terminal png
 set output "scratch/mobilegraphs/packet_vs_deliveryratio.png"
 set xlabel "Number of Packets per Second"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
+set yrange [0.50:1.25]
 plot "scratch/mobilegraphs/packet_delivery.dat" using 1:2 title 'PacketperSecondCount VS DeliveryRatio' with linespoints
 EOFMarker
 #Varying speed Area
-temp_s=1
+temp_s=5
 for i in {1..5}
 do
     ./ns3 run --quiet "scratch/mobilewifi.cc --nWifi=20 --flow=10 --packets_per_second=100 --speed=$temp_s --param=7" >> "scratch/mobilegraphs/speed_throughput.dat"
@@ -87,16 +87,16 @@ done
 gnuplot -persist <<-EOFMarker
 set terminal png 
 set output "scratch/mobilegraphs/speed_vs_throughput.png"
-set xlabel "speed Area"
+set xlabel "Speed"
 set ylabel "Throughput(Mbit/s)"
-set yrange [0:20]
-plot "scratch/mobilegraphs/speed_throughput.dat" using 1:2 title 'speed Area VS Throughput' with linespoints
+set yrange [0:10]
+plot "scratch/mobilegraphs/speed_throughput.dat" using 1:2 title 'Speed VS Throughput' with linespoints
 EOFMarker
 gnuplot -persist <<-EOFMarker
 set terminal png 
 set output "scratch/mobilegraphs/speed_vs_deliveryratio.png"
-set xlabel "speed Area"
+set xlabel "Speed"
 set ylabel "Packet Delivery Ratio"
-set yrange [0:2]
-plot "scratch/mobilegraphs/speed_delivery.dat" using 1:2 title 'speed Area VS DeliveryRatio' with linespoints
+set yrange [0.50:1.25]
+plot "scratch/mobilegraphs/speed_delivery.dat" using 1:2 title 'Speed VS DeliveryRatio' with linespoints
 EOFMarker

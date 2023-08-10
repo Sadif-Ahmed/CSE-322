@@ -71,7 +71,7 @@ void delivery_ratio_calculation()
 void througput_calculation()
 {
     double time = Simulator::Now().ToDouble(Time::S);
-    throughput = (num_received_bits-recent_num_received_bits)/(time-recent_time)/1e6 / 0.5;
+    throughput = (num_received_bits-recent_num_received_bits)/(time-recent_time)/1e6;
     std::string msg ="At time " +std::to_string(time)+ " Throughput : " + std::to_string(throughput);
     NS_LOG_UNCOND(msg<<" Mbit/s");
     recent_num_received_bits=num_received_bits;
@@ -246,7 +246,7 @@ int
 main(int argc, char* argv[])
 {
     uint32_t nWifi = 20;
-    uint32_t flow = 10;
+    uint32_t flow = 50;
     uint32_t packets_per_second = 100;
     uint32_t coverage_area = 1;
     uint32_t tx_range = 5; 
@@ -297,7 +297,7 @@ main(int argc, char* argv[])
     // NS_LOG_UNCOND(num_received_packet);
     
     double final_time = Simulator::Now().ToDouble(Time::S);
-    throughput = (num_received_bits)/final_time /1e6 / 0.5;
+    throughput = (num_received_bits)/final_time /1e6 ;
     std::string msg ="Average Throughput : " + std::to_string(throughput);
     NS_LOG_UNCOND(msg<<"  Mbit/s");
     packet_delivery_ratio = (num_received_packet)/(num_sent_packet*1.0);
