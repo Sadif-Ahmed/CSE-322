@@ -151,6 +151,15 @@ void print_serialized(vector<int> serialized_data)
         cout<<serialized_data[i];
     }
 }
+vector<int> crc_checksum(vector<int> serialized_data,string generator)
+{
+    vector<int> appended_data=serialized_data;
+    for(int i=0;i<generator.size()-1;i++)
+    {
+        appended_data.push_back(0);
+    }
+
+}
 int main()
 {
     string data_string;
