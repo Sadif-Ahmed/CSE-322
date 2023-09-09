@@ -40,7 +40,7 @@ vector<vector<int>> data_block_gen(string data_string,int block_size,int row_bit
         }
         for(int j=0;j<row_bits;j++)
         {
-            data_block.push_back(temp);
+            data_block[row_count].push_back(temp[j]);
         }
     }
     return data_block;
@@ -53,7 +53,7 @@ void print_data_block(vector<vector<int>> temp)
     {
         for(int j=0;j<temp[i].size();j++)
         {
-            cout<<temp[i][j]<<"\t";
+            cout<<temp[i][j];
         }
         cout<<endl;
     }
@@ -121,12 +121,12 @@ void print_check_bit_data_block(vector<vector<int>> temp)
             if(parity_pos_check(j+1))
             {
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
-                cout<<temp[i][j]<<"\t";
+                cout<<temp[i][j];
             }
             else
             {
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
-                cout<<temp[i][j]<<"\t";
+                cout<<temp[i][j];
             }
             
         }
@@ -180,7 +180,7 @@ int main()
     cout<<"After Column-Major Serialization: "<<endl;
     for(int i=0;i<serialized_data.size();i++)
     {
-        cout<<serialized_data[i]<<"\t";
+        cout<<serialized_data[i];
     }
     cout<<endl;
     return 0;
