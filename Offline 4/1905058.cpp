@@ -158,7 +158,45 @@ vector<int> crc_checksum(vector<int> serialized_data,string generator)
     {
         appended_data.push_back(0);
     }
-
+    for(int i=0;i<appended_data.size()-generator.size();i++)
+    {
+        if(appended_data[i]==0)
+        {
+            continue;
+        }
+        for(int j=1;j<i+generator.size();j++)
+        {
+            appended_data[j]^=(generator[j-i]-'0');
+        }
+    }
+    vector<int> R;
+    bool flag=false;
+    for(int i=serialized_data.size();i<appended_data.size();i++)
+    {
+            R.push_back(appended_data[i]);
+    }
+    appended_data=serialized_data;
+    for(int i=0;i<R.size();i++)
+    {
+        appended_data.push_back(R[i]);
+    }
+}
+void print_crc_checksum(vector<int>* data_block,vector<int> appended)
+{
+    for(int i=0;i<appended.size();i++)
+    {
+        if(i>=data_block[0].size())
+        {
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 3);
+            cout<<serializeddata[i];
+        }
+        else
+        {
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
+            cout<<serializeddata[i];
+        }
+        
+    }
 }
 int main()
 {
