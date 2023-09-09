@@ -12,9 +12,9 @@ string padding(string data_string,int block_size)
     }
     return data_string;
 }
-vector<vector<int>> data_block_gen(string data_string,int block_size,int row_bits)
+void data_block_gen(vector<int>*data_block,string data_string,int block_size,int row_bits)
 {
-    vector<vector<int>> data_block;
+    
     int row_count=-1;
     for(int i=0;i<data_string.size();i++)
     {
@@ -43,13 +43,12 @@ vector<vector<int>> data_block_gen(string data_string,int block_size,int row_bit
             data_block[row_count].push_back(temp[j]);
         }
     }
-    return data_block;
 
 }
-void print_data_block(vector<vector<int>> temp)
+void print_data_block(vector<int> *temp,int row_count)
 {
 
-    for(int i=0;i<temp.size();i++)
+    for(int i=0;i<row_count;i++)
     {
         for(int j=0;j<temp[i].size();j++)
         {
@@ -73,10 +72,10 @@ bool parity_pos_check(int pos)
         return true;
     }
 }
-vector<vector<int>> add_check_bits(vector<vector<int>> data_block,int block_size,int check_bits_count)
+void add_check_bits(vector<int>* data_block,int block_size,int check_bits_count,int row_count)
 {
     int total=block_size+check_bits_count;
-    for(int i=0;i<data_block.size();i++)
+    for(int i=0;i<row_count;i++)
     {
         for(int j=0;j<total;j++)
         {
@@ -109,12 +108,12 @@ vector<vector<int>> add_check_bits(vector<vector<int>> data_block,int block_size
             data_block[i][bit_mask]=parity_bit;
         }
     }
-    return data_block;
+    
 }
-void print_check_bit_data_block(vector<vector<int>> temp)
+void print_check_bit_data_block(vector<int>* temp,int row_count)
 {
 
-    for(int i=0;i<temp.size();i++)
+    for(int i=0;i<row_count;i++)
     {
         for(int j=0;j<temp[i].size();j++)
         {
@@ -133,17 +132,24 @@ void print_check_bit_data_block(vector<vector<int>> temp)
         cout<<endl;
     }
 }
-vector<int> collumn_major_serialization(vector<vector<int>> data_block)
+vector<int> collumn_major_serialization(vector<int>* data_block,int row_count)
 {
     vector<int> serialized;
     for(int i=0;i<data_block[0].size();i++)
     {
-        for(int j=0;j<data_block.size();j++)
+        for(int j=0;j<row_count;j++)
         {
             serialized.push_back(data_block[j][i]);
         }
     }
     return serialized;
+}
+void print_serialized(vector<int> serialized_data)
+{
+    for(int i=0;i<serialized_data.size();i++)
+    {
+        cout<<serialized_data[i];
+    }
 }
 int main()
 {
@@ -169,19 +175,16 @@ int main()
         data_string=padding(data_string,m);
         cout<<"The Data String(after Padding): "<<data_string<<endl;
     }
-    vector<vector<int>> data_block;
-    data_block=data_block_gen(data_string,m,8);
+    vector<int> data_block[data_string.size()/m];
+    data_block_gen(data_block,data_string,m,8);
     cout<<"The Data Block: "<<endl;
-    print_data_block(data_block);
+    print_data_block(data_block,data_string.size()/m);
     cout<<"The Data Block(after adding check bit): "<<endl;
-    data_block=add_check_bits(data_block,m,3);
-    print_check_bit_data_block(data_block);
-    vector<int> serialized_data =  collumn_major_serialization(data_block);
+    add_check_bits(data_block,m,3,data_string.size()/m);
+    print_check_bit_data_block(data_block,data_string.size()/m);
+    vector<int> serialized_data =  collumn_major_serialization(data_block,data_string.size()/m);
     cout<<"After Column-Major Serialization: "<<endl;
-    for(int i=0;i<serialized_data.size();i++)
-    {
-        cout<<serialized_data[i];
-    }
+    print_serialized(serialized_data);
     cout<<endl;
     return 0;
 }
