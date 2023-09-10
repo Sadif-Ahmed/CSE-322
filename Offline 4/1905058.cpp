@@ -403,6 +403,23 @@ void remove_check_bits(vector<int> *old_table,vector<int>* new_table,int row_cou
         }
     }
 }
+string data_block_to_string(vector<int>* data_table,int row_count,int bits_per_char)
+{
+    string ret="";
+    for(int i=0;i<row_count;i++)
+    {
+        bitset<8> ch;
+        for(int j=0;j<data_table[i].size();j+=bits_per_char)
+        {
+            for(int k=j;k<j+bits_per_char;k++)
+            {
+                ch[bits_per_char-1-k+j]=data_table[i][k];
+            }
+            ret.push_back((char)ch.to_ulong());
+        }
+    }
+    return ret;
+}
 int main()
 {
     string data_string;
@@ -447,6 +464,7 @@ int main()
     pair<vector<int>,vector<int>> trans = transmission(crc,p);
     print_received_frame(trans.first,trans.second);
     cout<<endl;
+    cout<<"Result of Checksum Check: ";
     if(crc_checksum_check(trans.first,gen_poly))
     {
         cout<<"No Error Detected"<<endl;
@@ -468,5 +486,8 @@ int main()
     remove_check_bits(err_data_block,re_data_block,data_string.size()/m);
     print_data_block(re_data_block,data_string.size()/m);
     
+    cout<<"Output Frame: "<<endl;
+    string message=data_block_to_string(re_data_block,data_string.size()/m,8);
+    cout<<message<<endl;
     return 0;
 }
