@@ -13,20 +13,34 @@ string padding(string data_string,int block_size)
     }
     return data_string;
 }
-void data_block_gen(vector<int>*data_block,string data_string,int block_size,int row_bits)
+class Data_String_Manipulation
+{
+    public:
+    string data_string;
+    vector<int>* data_block;
+    int bytes_per_row;
+    int row_count;
+    Data_String_Manipulation(string data_string,vector<int>* data_block,int bytes_per_row,int row_count)
+    {
+        this->data_string=data_string;
+        this->data_block=data_block;
+        this->bytes_per_row=bytes_per_row;
+        this->row_count=row_count;
+    }
+    void data_block_gen(int bits_per_char)
 {
     
     int row_count=-1;
     for(int i=0;i<data_string.size();i++)
     {
-        if(i%block_size==0)
+        if(i%bytes_per_row==0)
         {
             row_count++;
         }
         int bit_mask=1;
         vector<int> temp;
         char temp_c=data_string[i];
-        for(int j=row_bits-1;j>=0;j--)
+        for(int j=bits_per_char-1;j>=0;j--)
         {
             bit_mask=bit_mask<<j;
             if((temp_c&bit_mask) == 0)
@@ -39,25 +53,32 @@ void data_block_gen(vector<int>*data_block,string data_string,int block_size,int
             }
             bit_mask=1;
         }
-        for(int j=0;j<row_bits;j++)
+        for(int j=0;j<bits_per_char;j++)
         {
             data_block[row_count].push_back(temp[j]);
         }
     }
 
 }
-void print_data_block(vector<int> *temp,int row_count)
+void print_data_block()
 {
 
     for(int i=0;i<row_count;i++)
     {
-        for(int j=0;j<temp[i].size();j++)
+        for(int j=0;j<data_block[i].size();j++)
         {
-            cout<<temp[i][j];
+            cout<<data_block[i][j];
         }
         cout<<endl;
     }
 }
+void set_row_count(int row_count)
+{
+    this->row_count=row_count;
+}
+
+};
+
 bool parity_pos_check(int pos)
 {
     while(pos%2==0)
@@ -445,9 +466,10 @@ int main()
         cout<<"The Data String(after Padding): "<<data_string<<endl;
     }
     vector<int> data_block[data_string.size()/m];
-    data_block_gen(data_block,data_string,m,8);
+    Data_String_Manipulation *pre_data = new Data_String_Manipulation(data_string,data_block,m,data_string.size()/m);
+    pre_data->data_block_gen(8);
     cout<<"The Data Block: "<<endl;
-    print_data_block(data_block,data_string.size()/m);
+    pre_data->print_data_block();
     cout<<"The Data Block(after adding check bit): "<<endl;
     int num_check_bits=add_check_bits(data_block,m,3,data_string.size()/m);
     cout<<"Number of Check bits added per row: "<<num_check_bits<<endl;
@@ -484,7 +506,8 @@ int main()
     cout<<"After Removing Check Bits:"<<endl;
     vector<int> parity_pos=error_correction(err_data_block,data_string.size()/m,num_check_bits);
     remove_check_bits(err_data_block,re_data_block,data_string.size()/m);
-    print_data_block(re_data_block,data_string.size()/m);
+    Data_String_Manipulation *post_data = new Data_String_Manipulation(data_string,re_data_block,m,data_string.size()/m);
+    post_data->print_data_block();
     
     cout<<"Output Frame: "<<endl;
     string message=data_block_to_string(re_data_block,data_string.size()/m,8);
