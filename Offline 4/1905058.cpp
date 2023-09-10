@@ -94,22 +94,32 @@ bool parity_pos_check(int pos)
         return false;
     }
 }
-int add_check_bits(vector<int>* data_block,int block_size,int check_bits_count,int row_count)
+class Pre_Error_Correction_Detection
 {
-    int total=block_size+check_bits_count;
-    for(int i=0;i<row_count;i++)
+    public:
+    Data_String_Manipulation *data;
+    string generator;
+    Pre_Error_Correction_Detection(Data_String_Manipulation *data,string generator)
+    {
+        this->data=data; 
+        this->generator=generator;
+    }
+    int add_check_bits(int check_bits_count)
+{
+    int total=data->bytes_per_row+check_bits_count;
+    for(int i=0;i<data->row_count;i++)
     {
         for(int j=0;j<total;j++)
         {
             int bit_mask=1;
             bit_mask=bit_mask<<j;
             bit_mask--;
-            if(bit_mask>data_block[i].size())
+            if(bit_mask>data->data_block[i].size())
             {
                 total--;
                 continue;
             }
-            data_block[i].insert(data_block[i].begin()+bit_mask,0);
+            data->data_block[i].insert(data->data_block[i].begin()+bit_mask,0);
         }
         for(int k=0; k<total; k++)
         {
@@ -117,38 +127,38 @@ int add_check_bits(vector<int>* data_block,int block_size,int check_bits_count,i
             bit_mask=bit_mask<<k;
             int parity_bit=0;
             
-            for(int j=0; j<data_block[i].size(); j++)
+            for(int j=0; j<data->data_block[i].size(); j++)
             {
                 if(((j+1)&bit_mask)!=0)
                 {
                     
-                    parity_bit^=data_block[i][j];
+                    parity_bit^=data->data_block[i][j];
                 }
 
             }
             bit_mask--;
-            data_block[i][bit_mask]=parity_bit;
+            data->data_block[i][bit_mask]=parity_bit;
         }
     }
     return total;
     
 }
-void print_check_bit_data_block(vector<int>* temp,int row_count)
+void print_check_bit_data_block()
 {
 
-    for(int i=0;i<row_count;i++)
+    for(int i=0;i<data->row_count;i++)
     {
-        for(int j=0;j<temp[i].size();j++)
+        for(int j=0;j<data->data_block[i].size();j++)
         {
             if(parity_pos_check(j+1))
             {
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
-                cout<<temp[i][j];
+                cout<<data->data_block[i][j];
             }
             else
             {
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
-                cout<<temp[i][j];
+                cout<<data->data_block[i][j];
             }
             
         }
@@ -156,14 +166,14 @@ void print_check_bit_data_block(vector<int>* temp,int row_count)
     }
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
 }
-vector<int> collumn_major_serialization(vector<int>* data_block,int row_count)
+vector<int> collumn_major_serialization()
 {
     vector<int> serialized;
-    for(int i=0;i<data_block[0].size();i++)
+    for(int i=0;i<data->data_block[0].size();i++)
     {
-        for(int j=0;j<row_count;j++)
+        for(int j=0;j<data->row_count;j++)
         {
-            serialized.push_back(data_block[j][i]);
+            serialized.push_back(data->data_block[j][i]);
         }
     }
     return serialized;
@@ -175,7 +185,7 @@ void print_serialized(vector<int> serialized_data)
         cout<<serialized_data[i];
     }
 }
-vector<int> crc_checksum_gen(vector<int> serialized_data,string generator)
+vector<int> crc_checksum_gen(vector<int> serialized_data)
 {
     
     vector<int> appended_data=serialized_data;
@@ -225,6 +235,9 @@ void print_crc_checksum(vector<int> serialized,vector<int> appended)
     }
      SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
 }
+
+};
+
 double rand_gen(double p)
 {
     random_device rd; // obtain a random number from hardware
@@ -280,6 +293,21 @@ void print_received_frame(vector<int>received,vector<int>toggle_pos)
     }
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
 }
+class Post_Error_Correction_Detection
+{
+    public:
+    vector<int>frame;
+    string generator;
+    vector<int> *data_block;
+    int row_count;
+    Post_Error_Correction_Detection(vector<int> frame,string generator,vector<int>*data_block,int row_count)
+    {
+        this->frame=frame;
+        this->generator=generator;
+        this->data_block=data_block;
+        this->row_count=row_count;
+    }
+};
 bool crc_checksum_check(vector<int> frame,string generator)
 {
     vector<int> appended=frame;
@@ -470,17 +498,18 @@ int main()
     pre_data->data_block_gen(8);
     cout<<"The Data Block: "<<endl;
     pre_data->print_data_block();
+    Pre_Error_Correction_Detection *pre_process_data = new Pre_Error_Correction_Detection(pre_data,gen_poly); 
     cout<<"The Data Block(after adding check bit): "<<endl;
-    int num_check_bits=add_check_bits(data_block,m,3,data_string.size()/m);
+    int num_check_bits=pre_process_data->add_check_bits(3);
     cout<<"Number of Check bits added per row: "<<num_check_bits<<endl;
-    print_check_bit_data_block(data_block,data_string.size()/m);
-    vector<int> serialized_data =  collumn_major_serialization(data_block,data_string.size()/m);
+    pre_process_data->print_check_bit_data_block();
+    vector<int> serialized_data =  pre_process_data->collumn_major_serialization();
     cout<<"After Column-Major Serialization: "<<endl;
-    print_serialized(serialized_data);
+    pre_process_data->print_serialized(serialized_data);
     cout<<endl;
     cout<<"After CRC Checksum Addition:"<<endl;
-    vector<int> crc = crc_checksum_gen(serialized_data,gen_poly);
-    print_crc_checksum(serialized_data,crc);
+    vector<int> crc = pre_process_data->crc_checksum_gen(serialized_data);
+    pre_process_data-> print_crc_checksum(serialized_data,crc);
     cout<<endl;
     cout<<"At the receiving End: "<<endl;
     pair<vector<int>,vector<int>> trans = transmission(crc,p);
