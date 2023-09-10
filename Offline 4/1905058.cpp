@@ -76,6 +76,23 @@ void set_row_count(int row_count)
 {
     this->row_count=row_count;
 }
+string data_block_to_string(int bits_per_char)
+{
+    string ret="";
+    for(int i=0;i<row_count;i++)
+    {
+        bitset<8> ch;
+        for(int j=0;j<data_block[i].size();j+=bits_per_char)
+        {
+            for(int k=j;k<j+bits_per_char;k++)
+            {
+                ch[bits_per_char-1-k+j]=data_block[i][k];
+            }
+            ret.push_back((char)ch.to_ulong());
+        }
+    }
+    return ret;
+}
 
 };
 
@@ -307,8 +324,7 @@ class Post_Error_Correction_Detection
         this->data_block=data_block;
         this->row_count=row_count;
     }
-};
-bool crc_checksum_check(vector<int> frame,string generator)
+    bool crc_checksum_check()
 {
     vector<int> appended=frame;
     for(int i=0;i<=appended.size()-generator.size();i++)
@@ -331,7 +347,7 @@ bool crc_checksum_check(vector<int> frame,string generator)
     }
     return true;
 }
-vector<int> crc_checksum_rem(vector<int> frame,int frame_size)
+vector<int> crc_checksum_rem(int frame_size)
 {
     vector<int> ret_frame;
     for(int i=0;i<frame_size;i++)
@@ -340,7 +356,7 @@ vector<int> crc_checksum_rem(vector<int> frame,int frame_size)
     }
     return ret_frame;
 }
-void deserialize(vector<int>*data_block,int row_count,int col_count,vector<int> serialized)
+void deserialize(int col_count,vector<int> serialized)
 {
     for(int i=0;i<row_count;i++)
     {
@@ -350,7 +366,7 @@ void deserialize(vector<int>*data_block,int row_count,int col_count,vector<int> 
         }
     }
 }
-void print_desiarlized_block(vector<int>*data_block,int row_count,vector<int> toggle_pos)
+void print_desiarlized_block(vector<int> toggle_pos)
 {
     bool flag;
     for(int i=0;i<row_count;i++)
@@ -381,7 +397,7 @@ void print_desiarlized_block(vector<int>*data_block,int row_count,vector<int> to
     }
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
 }
-vector<int> error_correction(vector<int>* data_block,int row_count,int num_check_bits)
+vector<int> error_correction(int num_check_bits)
 {
     
     vector<int> parity_pos;
@@ -452,23 +468,9 @@ void remove_check_bits(vector<int> *old_table,vector<int>* new_table,int row_cou
         }
     }
 }
-string data_block_to_string(vector<int>* data_table,int row_count,int bits_per_char)
-{
-    string ret="";
-    for(int i=0;i<row_count;i++)
-    {
-        bitset<8> ch;
-        for(int j=0;j<data_table[i].size();j+=bits_per_char)
-        {
-            for(int k=j;k<j+bits_per_char;k++)
-            {
-                ch[bits_per_char-1-k+j]=data_table[i][k];
-            }
-            ret.push_back((char)ch.to_ulong());
-        }
-    }
-    return ret;
-}
+};
+
+
 int main()
 {
     string data_string;
@@ -515,8 +517,11 @@ int main()
     pair<vector<int>,vector<int>> trans = transmission(crc,p);
     print_received_frame(trans.first,trans.second);
     cout<<endl;
+    vector<int> err_data_block[data_string.size()/m];
+    vector<int> re_data_block[data_string.size()/m];
+    Post_Error_Correction_Detection *post_process_data = new Post_Error_Correction_Detection(trans.first,gen_poly,err_data_block,data_string.size()/m);
     cout<<"Result of Checksum Check: ";
-    if(crc_checksum_check(trans.first,gen_poly))
+    if(post_process_data->crc_checksum_check())
     {
         cout<<"No Error Detected"<<endl;
     }
@@ -524,22 +529,21 @@ int main()
     {
         cout<<"Error Detected"<<endl;
     }
-    vector<int> checksum_removed = crc_checksum_rem(trans.first,serialized_data.size());
-    vector<int> err_data_block[data_string.size()/m];
-    vector<int> re_data_block[data_string.size()/m];
-    deserialize(err_data_block,data_string.size()/m,data_block[0].size(),checksum_removed);
+    vector<int> checksum_removed = post_process_data->crc_checksum_rem(serialized_data.size());
+
+    post_process_data->deserialize(data_block[0].size(),checksum_removed);
     cout<<"After Removing Checksum and Deserialization: "<<endl;
-    print_desiarlized_block(err_data_block,data_string.size()/m,trans.second);
+    post_process_data->print_desiarlized_block(trans.second);
 
     
     cout<<"After Removing Check Bits:"<<endl;
-    vector<int> parity_pos=error_correction(err_data_block,data_string.size()/m,num_check_bits);
-    remove_check_bits(err_data_block,re_data_block,data_string.size()/m);
+    vector<int> parity_pos=post_process_data->error_correction(num_check_bits);
+    post_process_data->remove_check_bits(post_process_data->data_block,re_data_block,data_string.size()/m);
     Data_String_Manipulation *post_data = new Data_String_Manipulation(data_string,re_data_block,m,data_string.size()/m);
     post_data->print_data_block();
     
     cout<<"Output Frame: "<<endl;
-    string message=data_block_to_string(re_data_block,data_string.size()/m,8);
+    string message=post_data->data_block_to_string(8);
     cout<<message<<endl;
     return 0;
 }
